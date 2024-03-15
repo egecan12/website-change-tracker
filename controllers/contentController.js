@@ -2,65 +2,87 @@ const express = require("express");
 const axios = require("axios");
 const Content = require("../models/contentModel");
 const { URL } = require("url");
-
+const { removeProtocolAndWWW } = require("../utils/urlModifier");
 let siteUrl = "https://kahyaogluegecan.tech/sample-page/";
 
-exports.fetchUrlCurrentContent = async (req, res) => {
+// exports.fetchUrlCurrentContent = async (req, res) => {
+//   try {
+//     const inputUrl = req.params.inputUrl || siteUrl;
+//     const response = await axios.get(inputUrl);
+//     console.log(response.data);
+//     res.send(response.data);
+//   } catch (error) {
+//     console.error("Error fetching website content:", error);
+//     res.status(500).send("Error fetching website content");
+//   }
+// };
+
+// exports.fetchUrlCachedContent = async (req, res) => {
+//   try {
+//     const inputUrl = req.query.inputUrl;
+//     // Remove "https://" and "www." from inputUrl and urlRoot
+//     fixedInputUrl = removeProtocolAndWWW(inputUrl);
+
+//     console.log(fixedInputUrl);
+
+//     const content = await Content.findOne({ url: fixedInputUrl });
+
+//     if (!content) {
+//       return res.status(404).send("No content found for the provided URL");
+//     }
+
+//     res.send(content);
+//   } catch (error) {
+//     console.error("Error fetching content from database:", error);
+//     res.status(500).send("Error fetching content from database");
+//   }
+// };
+
+exports.fetchUrlCurrentContent = async (inputUrl) => {
   try {
-    const inputUrl = req.params.inputUrl || siteUrl;
     const response = await axios.get(inputUrl);
-    console.log(response.data);
-    res.send(response.data);
+    return response.data;
   } catch (error) {
     console.error("Error fetching website content:", error);
-    res.status(500).send("Error fetching website content");
+    throw error;
   }
 };
 
-exports.fetchUrlCachedContent = async (req, res) => {
+exports.fetchUrlCachedContent = async (inputUrl) => {
   try {
-    const inputUrl = req.query.inputUrl;
-    // Remove "https://" and "www." from inputUrl and urlRoot
-    fixedInputUrl = inputUrl.replace(/(https?:\/\/)?(www\.)?/, "");
-
-    console.log(fixedInputUrl);
+    let fixedInputUrl = removeProtocolAndWWW(inputUrl);
 
     const content = await Content.findOne({ url: fixedInputUrl });
 
     if (!content) {
-      return res.status(404).send("No content found for the provided URL");
+      throw new Error("No content found for the provided URL");
     }
-
-    res.send(content);
+    return content;
   } catch (error) {
     console.error("Error fetching content from database:", error);
-    res.status(500).send("Error fetching content from database");
+    throw error;
   }
 };
-exports.addUrlContent = async (req, res) => {
+exports.saveUrlContent = async (req, res) => {
   try {
     const inputUrl = req.params.inputUrl || siteUrl;
+
+    const startTime = Date.now();
     const response = await axios.get(inputUrl);
+    const responseTime = Date.now() - startTime;
+    console.log(`Response time for ${inputUrl}: ${responseTime} ms`);
 
     const url = new URL(inputUrl);
     const urlRoot = url.origin;
 
-    // Remove "https://" and "www." from inputUrl and urlRoot
-    fixedInputUrl = inputUrl.replace(/(https?:\/\/)?(www\.)?/, "");
-    fixedUrlRoot = urlRoot.replace(/(https?:\/\/)?(www\.)?/, "");
-    // If inputUrl ends with a "/", remove it
-    if (fixedInputUrl.endsWith("/")) {
-      fixedInputUrl = fixedInputUrl.slice(0, -1);
-    }
-    // If urlRoot ends with a "/", remove it
-    if (fixedUrlRoot.endsWith("/")) {
-      fixedUrlRoot = fixedUrlRoot.slice(0, -1);
-    }
+    let fixedInputUrl = removeProtocolAndWWW(inputUrl);
+    let fixedUrlRoot = removeProtocolAndWWW(urlRoot);
 
     const content = new Content({
       url: fixedInputUrl,
       urlRoot: fixedUrlRoot,
       data: response.data,
+      responseTime: responseTime,
     });
     await content.save();
 
@@ -68,5 +90,27 @@ exports.addUrlContent = async (req, res) => {
   } catch (error) {
     console.error("Error fetching website content:", error);
     res.status(500).send("Error fetching website content");
+  }
+};
+exports.compareContent = async (req, res) => {
+  try {
+    const inputUrl = req.query.inputUrl;
+
+    const currentContent = await exports.fetchUrlCurrentContent(inputUrl);
+    //console.log("Current content:", currentContent);
+
+    const cachedContent = await exports.fetchUrlCachedContent(inputUrl);
+    // console.log("Cached content:", cachedContent.data);
+
+    //Compare if the data is the same
+    const isSame =
+      JSON.stringify(currentContent) === JSON.stringify(cachedContent.data);
+
+    res.send({ isSame });
+
+    res.send(currentContent);
+  } catch (error) {
+    console.error("Error comparing content:", error);
+    res.status(500).send("Error comparing content");
   }
 };
