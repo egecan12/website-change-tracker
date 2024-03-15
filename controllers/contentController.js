@@ -2,7 +2,10 @@ const express = require("express");
 const axios = require("axios");
 const Content = require("../models/contentModel");
 const { URL } = require("url");
-const { removeProtocolAndWWW } = require("../utils/urlModifier");
+const {
+  removeProtocolAndWWW,
+  addProtocolAndWWW,
+} = require("../utils/urlModifier");
 let siteUrl = "https://kahyaogluegecan.tech/sample-page/";
 
 // exports.fetchUrlCurrentContent = async (req, res) => {
@@ -40,7 +43,8 @@ let siteUrl = "https://kahyaogluegecan.tech/sample-page/";
 
 exports.fetchUrlCurrentContent = async (inputUrl) => {
   try {
-    const response = await axios.get(inputUrl);
+    const fixedUrl = addProtocolAndWWW(inputUrl);
+    const response = await axios.get(fixedUrl);
     return response.data;
   } catch (error) {
     console.error("Error fetching website content:", error);
@@ -50,9 +54,9 @@ exports.fetchUrlCurrentContent = async (inputUrl) => {
 
 exports.fetchUrlCachedContent = async (inputUrl) => {
   try {
-    let fixedInputUrl = removeProtocolAndWWW(inputUrl);
+    const fixedUrl = removeProtocolAndWWW(inputUrl);
 
-    const content = await Content.findOne({ url: fixedInputUrl });
+    const content = await Content.findOne({ url: fixedUrl });
 
     if (!content) {
       throw new Error("No content found for the provided URL");
@@ -107,8 +111,6 @@ exports.compareContent = async (req, res) => {
       JSON.stringify(currentContent) === JSON.stringify(cachedContent.data);
 
     res.send({ isSame });
-
-    res.send(currentContent);
   } catch (error) {
     console.error("Error comparing content:", error);
     res.status(500).send("Error comparing content");
