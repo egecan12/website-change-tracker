@@ -9,6 +9,7 @@ const { sendEmail } = require("../utils/emailSender/emailSender");
 const {
   sendContentChangedEmail,
 } = require("../utils/emailSender/emailTemplates");
+const { sendSms } = require("../utils/smsSender/smsSender");
 // let siteUrl = "https://kahyaogluegecan.tech/sample-page/";
 
 // exports.fetchCurrentContent = async (req, res) => {
@@ -151,6 +152,10 @@ exports.compareContent = async (req, res) => {
     if (!isContentSame) {
       await sendContentChangedEmail("kahyaogluegecan@gmail.com");
     }
+    await sendContentChangedSms(
+      "+905343195969",
+      "The content you are tracking has changed."
+    );
 
     res.send({ isContentSame, isStatusSame });
   } catch (error) {
