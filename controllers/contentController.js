@@ -5,7 +5,10 @@ const {
   removeProtocolAndWWW,
   addProtocolAndWWW,
 } = require("../utils/urlModifier");
-
+const { sendEmail } = require("../utils/emailSender/emailSender");
+const {
+  sendContentChangedEmail,
+} = require("../utils/emailSender/emailTemplates");
 // let siteUrl = "https://kahyaogluegecan.tech/sample-page/";
 
 // exports.fetchCurrentContent = async (req, res) => {
@@ -125,10 +128,14 @@ exports.compareContent = async (req, res) => {
       throw error;
     }
 
+    let cachedContentObject;
     let cachedContent;
+    let cachedStatus;
     try {
       //gets the latest cached stage
-      cachedContent = await exports.fetchCachedContent(inputUrl);
+      cachedContentObject = await exports.fetchCachedContent(inputUrl);
+      cachedContent = cachedContentObject.data;
+      cachedStatus = cachedContentObject.responseStatus;
     } catch (error) {
       if (error.message === "No content found for the provided URL") {
         return res.status(404).send("This web link is not cached");
@@ -136,14 +143,14 @@ exports.compareContent = async (req, res) => {
       throw error;
     }
 
-    // const isContentSame =
-    // JSON.stringify(currentContent) === JSON.stringify(cachedContent.data);
+    //Compares if the data is the same
+    const isContentSame = currentContent === cachedContent;
 
     //Compares if the data is the same
-    const isContentSame = currentContent === cachedContent.data;
-
-    //Compares if the data is the same
-    const isStatusSame = currentStatus === cachedContent.responseStatus;
+    const isStatusSame = currentStatus === cachedStatus;
+    if (!isContentSame) {
+      await sendContentChangedEmail("kahyaogluegecan@gmail.com");
+    }
 
     res.send({ isContentSame, isStatusSame });
   } catch (error) {

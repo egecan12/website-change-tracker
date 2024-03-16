@@ -6,9 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "egecan kahyaoglu",
   "license": "ISC",
   "dependencies": {
+    "@sendgrid/mail": "^8.1.1",
     "axios": "^1.6.7",
     "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.4.5",
