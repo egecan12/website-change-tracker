@@ -12,39 +12,6 @@ const {
 const { sendSms } = require("../utils/smsSender/smsSender");
 // let siteUrl = "https://kahyaogluegecan.tech/sample-page/";
 
-// exports.fetchCurrentContent = async (req, res) => {
-//   try {
-//     const inputUrl = req.params.inputUrl || siteUrl;
-//     const response = await axios.get(inputUrl);
-//     console.log(response.data);
-//     res.send(response.data);
-//   } catch (error) {
-//     console.error("Error fetching website content:", error);
-//     res.status(500).send("Error fetching website content");
-//   }
-// };
-
-// exports.fetchCachedContent = async (req, res) => {
-//   try {
-//     const inputUrl = req.query.inputUrl;
-//     // Remove "https://" and "www." from inputUrl and urlRoot
-//     fixedInputUrl = removeProtocolAndWWW(inputUrl);
-
-//     console.log(fixedInputUrl);
-
-//     const content = await Content.findOne({ url: fixedInputUrl });
-
-//     if (!content) {
-//       return res.status(404).send("No content found for the provided URL");
-//     }
-
-//     res.send(content);
-//   } catch (error) {
-//     console.error("Error fetching content from database:", error);
-//     res.status(500).send("Error fetching content from database");
-//   }
-// };
-
 exports.fetchCurrentContent = async (inputUrl) => {
   try {
     const fixedUrl = addProtocolAndWWW(inputUrl);
@@ -77,6 +44,34 @@ exports.fetchCachedContent = async (inputUrl) => {
     throw error;
   }
 };
+
+exports.checkIfContentCached = async (req, res) => {
+  try {
+    const inputUrl = req.query.inputUrl;
+
+    //we will need fixedUrl to seacrh it in DB
+    const fixedUrl = removeProtocolAndWWW(inputUrl);
+
+    //we will need modifiedUrl to save it in DB
+    const modifiedUrl = addProtocolAndWWW(inputUrl);
+
+    //just brings the most recent content
+    const content = await Content.findOne({ url: fixedUrl })
+      .sort({ createdAt: -1 })
+      .limit(1);
+
+    if (!content) {
+      console.log("No content found for the provided URL. Saving content...");
+      await saveContent(inputUrl);
+      //checkIfContentCached is called again to get the newly saved content.
+      res.send("The content has been successfully cached.");
+    }
+    res.send("The content had already cached");
+  } catch (error) {
+    console.error("Error fetching content from database:", error);
+    throw error;
+  }
+};
 exports.saveContent = async (req, res) => {
   try {
     const inputUrl = req.query.inputUrl;
@@ -104,7 +99,7 @@ exports.saveContent = async (req, res) => {
       responseStatus: response.status,
     });
     await content.save();
-    res.send("Content saved successfully");
+    res.status(201).send("Content saved successfully");
   } catch (error) {
     console.error("Error saving content to DB:", error);
     res.status(500).send("Error saving content to DB");
@@ -144,20 +139,20 @@ exports.compareContent = async (req, res) => {
       throw error;
     }
 
-    //Compares if the data is the same
+    //Compares if the content is the same
     const isContentSame = currentContent === cachedContent;
 
-    //Compares if the data is the same
+    //Compares if the status is the same
     const isStatusSame = currentStatus === cachedStatus;
     if (!isContentSame) {
       await sendContentChangedEmail("kahyaogluegecan@gmail.com");
     }
-    await sendContentChangedSms(
-      "+905343195969",
-      "The content you are tracking has changed."
-    );
+    // await sendContentChangedSms(
+    //   "+905343195969",
+    //   "The content you are tracking has changed."
+    // );
 
-    res.send({ isContentSame, isStatusSame });
+    res.status(200).send({ isContentSame, isStatusSame });
   } catch (error) {
     console.error("Error comparing content:", error);
     res.status(500).send("Error comparing content");
