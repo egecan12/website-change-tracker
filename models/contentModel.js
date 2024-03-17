@@ -1,8 +1,13 @@
 const mongoose = require("mongoose");
 
 const ContentSchema = new mongoose.Schema({
+  url: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+  },
   urlRoot: String,
-  url: String,
   data: String,
   responseTime: Number,
   responseStatus: Number,
