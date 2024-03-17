@@ -53,9 +53,6 @@ exports.checkIfContentCached = async (req, res) => {
     //we will need fixedUrl to seacrh it in DB
     const fixedUrl = removeProtocolAndWWW(inputUrl);
 
-    //we will need modifiedUrl to save it in DB
-    const modifiedUrl = addProtocolAndWWW(inputUrl);
-
     //just brings the most recent content
     const content = await Content.findOne({ url: fixedUrl })
       .sort({ createdAt: -1 })

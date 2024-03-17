@@ -4,6 +4,7 @@ const { URL } = require("url");
 const {
   removeProtocolAndWWW,
   addProtocolAndWWW,
+  validURL,
 } = require("../utils/urlModifier");
 
 //FUNCTIONS
@@ -20,53 +21,86 @@ exports.fetchTargetLinks = async (req, res) => {
 
 exports.saveTargetLink = async (req, res) => {
   try {
-    //fixes the urls before they are sent out to DB
-    const fixedInputUrl = removeProtocolAndWWW(req.body.url);
-    const modifiedInputUrl = addProtocolAndWWW(req.body.url);
+    const urls = req.body.urls; // Expect an array of URLs
 
-    const url = new URL(modifiedInputUrl);
-    const urlRoot = removeProtocolAndWWW(url.origin);
-
-    // Check if a record with the same url already exists
-    const existingTargetLink = await TargetLink.findOne({ url: fixedInputUrl });
-    if (existingTargetLink) {
-      return res
-        .status(400)
-        .send("Invalid operation - This link is already added to targets list");
+    // Check if urls is an array
+    if (!Array.isArray(urls)) {
+      return res.status(400).send("Invalid input - urls should be an array");
     }
 
-    // If no existing record, save the new target link
-    const newTargetLink = new TargetLink({
-      url: fixedInputUrl,
-      urlRoot: urlRoot,
-    });
-    await newTargetLink.save();
+    for (let url of urls) {
+      // Check if url is a valid URL
+      if (!validURL(url)) {
+        continue;
+      }
 
-    res.status(201).send(newTargetLink);
+      // Fixes the urls before they are sent out to DB
+      const fixedInputUrl = removeProtocolAndWWW(url);
+      console.log("fixedInputUrl:" + fixedInputUrl);
+
+      const modifiedUrl = addProtocolAndWWW(url);
+      const urlObj = new URL(modifiedUrl);
+
+      const urlRoot = urlObj.origin;
+      const fixedurlRoot = removeProtocolAndWWW(url);
+
+      // Check if a record with the same url already exists
+      const existingTargetLink = await TargetLink.findOne({
+        url: fixedInputUrl,
+      });
+      if (existingTargetLink) {
+        //if the link already added, skip to the next one
+        continue;
+      }
+
+      // If no existing record, save the new target link
+      const newTargetLink = new TargetLink({
+        url: fixedInputUrl,
+        urlRoot: fixedurlRoot,
+      });
+
+      await newTargetLink.save();
+    }
+
+    res.status(200).send("Target links saved successfully");
   } catch (error) {
-    console.error("Error saving target link to database:", error);
-    res.status(500).send("Error saving target link to database");
+    console.error("Error saving target links to database:", error);
+    res.status(500).send("Error saving target links to database");
   }
 };
 
 exports.deleteTargetLink = async (req, res) => {
   try {
-    const { url } = req.body;
+    const urls = req.body.urls; // Expect an array of URLs
 
-    const fixedInputUrl = removeProtocolAndWWW(url);
-
-    // finds the target link by url and delete it
-    const targetLink = await TargetLink.findOneAndDelete({
-      url: fixedInputUrl,
-    });
-
-    if (!targetLink) {
-      return res.status(404).send("No target link found with this url");
+    // Check if urls is an array
+    if (!Array.isArray(urls)) {
+      return res.status(400).send("Invalid input - urls should be an array");
     }
 
-    res.status(200).send("Target link deleted successfully");
+    for (let url of urls) {
+      // Check if url is a valid URL
+      if (!validURL(url)) {
+        console.log("invalid url");
+        continue;
+      }
+
+      // Fixes the urls before they are sent out to DB
+      const fixedInputUrl = removeProtocolAndWWW(url);
+
+      // Delete the target link
+      const targetLink = await TargetLink.findOneAndDelete({
+        url: fixedInputUrl,
+      });
+      if (!targetLink) {
+        console.log("No target link found with this url");
+        continue;
+      }
+    }
+
+    res.status(200).send("Target links deleted successfully");
   } catch (error) {
-    console.error("Error deleting target link from database:", error);
-    res.status(500).send("Error deleting target link from database");
+    console.error("Error deleting target links from database:", error);
+    res.status(500).send("Error deleting target links from database");
   }
 };

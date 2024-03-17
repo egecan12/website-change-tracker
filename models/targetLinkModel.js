@@ -1,7 +1,12 @@
 const mongoose = require("mongoose");
 
 const TargetLinkSchema = new mongoose.Schema({
-  url: String,
+  url: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+  },
   urlRoot: String,
   createdAt: {
     type: Date,
