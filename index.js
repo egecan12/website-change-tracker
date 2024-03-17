@@ -4,6 +4,7 @@ const app = express();
 const connectToDatabase = require("./databaseConnection");
 const contentRouter = require("./routes/contentRoutes");
 const targetRouter = require("./routes/targetLinkRoutes");
+const recordRouter = require("./routes/recordRoutes");
 
 connectToDatabase();
 
@@ -11,6 +12,7 @@ connectToDatabase();
 app.use(express.json());
 app.use("/content", contentRouter);
 app.use("/targetlink", targetRouter);
+app.use("/record", recordRouter);
 
 //ROUTES
 

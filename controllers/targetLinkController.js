@@ -42,7 +42,7 @@ exports.saveTargetLink = async (req, res) => {
       const urlObj = new URL(modifiedUrl);
 
       const urlRoot = urlObj.origin;
-      const fixedurlRoot = removeProtocolAndWWW(url);
+      const fixedurlRoot = removeProtocolAndWWW(urlRoot);
 
       // Check if a record with the same url already exists
       const existingTargetLink = await TargetLink.findOne({

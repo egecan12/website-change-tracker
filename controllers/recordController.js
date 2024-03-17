@@ -5,7 +5,7 @@ const {
   addProtocolAndWWW,
   validURL,
 } = require("../utils/urlModifier");
-exports.getRecordsByLink = async (req, res) => {
+exports.fetchRecordsByLink = async (req, res) => {
   try {
     const url = req.params.url; // gets the URL from the request parameters
 
@@ -24,6 +24,45 @@ exports.getRecordsByLink = async (req, res) => {
   } catch (error) {
     console.error("Error fetching records from database:", error);
     res.status(500).send("Error fetching records from database");
+  }
+};
+exports.fetchRecords = async (req, res) => {
+  try {
+    const urls = req.body.urls; // Expect an array of URLs
+
+    // Check if urls is an array
+    if (!Array.isArray(urls)) {
+      return res.status(400).send("Invalid input - urls should be an array");
+    }
+
+    let records = []; // Array to store the records of each URL
+
+    for (let i = 0; i < urls.length; i++) {
+      let url = urls[i];
+
+      // Remove the protocol and 'www' from the URL
+      let fixedUrl = removeProtocolAndWWW(url);
+
+      // Fetch the records for the URL
+      const urlRecords = await Record.find({ url: fixedUrl });
+
+      // If urlRecords is empty, skip to the next item
+      if (urlRecords.length === 0) {
+        continue;
+      }
+
+      // Add the records to the array
+      records.push({
+        url: url,
+        records: urlRecords,
+      });
+    }
+
+    // Send the array of records as the response
+    res.send(records);
+  } catch (error) {
+    console.error("Error : fetching records from database:", error);
+    res.status(500).send("Error : fetching records from database");
   }
 };
 
