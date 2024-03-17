@@ -1,5 +1,6 @@
 const axios = require("axios");
 const Content = require("../models/contentModel");
+const Record = require("../models/recordModel");
 const { URL } = require("url");
 const {
   removeProtocolAndWWW,
@@ -17,14 +18,30 @@ const { saveRecord } = require("./recordController");
 exports.fetchCurrentContent = async (inputUrl) => {
   try {
     const fixedUrl = addProtocolAndWWW(inputUrl);
+
+    // Record the start time
+    const startTime = Date.now();
     const response = await axios.get(fixedUrl);
+    // Record the end time
+    const endTime = Date.now();
+
+    // Calculate the response time
+    const responseTime = endTime - startTime;
     return {
-      currentContent: response.data,
+      data: response.data,
       status: response.status,
+      responseTime: responseTime,
+      responseStatusText: response.statusText,
     };
   } catch (error) {
     console.error("Error fetching website content:", error);
-    throw error;
+    return {
+      data: null,
+      status: "error",
+      responseTime: null,
+      responseStatusText: "Error fetching website content",
+      errorMessage: error.message,
+    };
   }
 };
 
@@ -46,83 +63,7 @@ exports.fetchCachedContent = async (inputUrl) => {
     throw error;
   }
 };
-// exports.saveContent = async (req, res) => {
-//   try {
-//     const inputUrl = req.query.inputUrl;
 
-//     //make sure the request url contains http, https or www.
-//     const fixedUrl = addProtocolAndWWW(inputUrl);
-
-//     //calculatesthe response time
-//     const startTime = Date.now();
-//     const response = await axios.get(fixedUrl);
-//     const responseTime = Date.now() - startTime;
-//     console.log(`Response time for ${inputUrl}: ${responseTime} ms`);
-
-//     //fixes the urls before they are sent out to DB
-//     const url = new URL(fixedUrl);
-//     const urlRoot = url.origin;
-//     const fixedInputUrl = removeProtocolAndWWW(inputUrl);
-//     const fixedUrlRoot = removeProtocolAndWWW(urlRoot);
-
-//     const content = new Content({
-//       url: fixedInputUrl,
-//       urlRoot: fixedUrlRoot,
-//       data: response.data,
-//       responseTime: responseTime,
-//       responseStatus: response.status,
-//     });
-//     await content.save();
-//   } catch (error) {
-//     console.error("Error saving content to DB:");
-//     throw error;
-//   }
-// };
-// exports.checkIfContentCached = async (req, res) => {
-//   try {
-//     const inputUrl = req.query.inputUrl;
-//     const fixedUrl = removeProtocolAndWWW(inputUrl);
-//     const modifedUrl = addProtocolAndWWW(inputUrl);
-
-//     console.log(modifedUrl);
-
-//     const content = await Content.findOne({ url: fixedUrl })
-//       .sort({ createdAt: -1 })
-//       .limit(1);
-
-//     if (!content) {
-//       console.log("No content found for the provided URL. Saving content...");
-//       try {
-//         const startTime = Date.now();
-//         const response = await axios.get(modifedUrl);
-//         const responseTime = Date.now() - startTime;
-//         console.log(`Response time for ${inputUrl}: ${responseTime} ms`);
-
-//         const url = new URL(modifedUrl);
-//         const urlRoot = url.origin;
-
-//         const newContent = new Content({
-//           url: fixedUrl,
-//           urlRoot: urlRoot,
-//           data: response.data,
-//           responseTime: responseTime,
-//           responseStatus: response.status,
-//         });
-//         await newContent.save();
-
-//         res.send("The content has been successfully cached.");
-//       } catch (error) {
-//         console.error("Error saving content to DB:", error);
-//         res.status(500).send("Error saving content to DB");
-//       }
-//     } else {
-//       res.send("The content had already been cached");
-//     }
-//   } catch (error) {
-//     console.error("Error : writing content to database:", error);
-//     res.status(500).send("Error : writing content to database");
-//   }
-// };
 exports.checkIfContentCached = async (req, res) => {
   try {
     const urls = req.body.urls; // Expect an array of URLs
@@ -162,6 +103,7 @@ exports.checkIfContentCached = async (req, res) => {
             data: response.data,
             responseTime: responseTime,
             responseStatus: response.status,
+            responseStatusText: response.statusText,
           });
           await newContent.save();
 
@@ -175,7 +117,8 @@ exports.checkIfContentCached = async (req, res) => {
           // Add the status of the URL to the array
           urlStatuses.push({
             url: inputUrl,
-            status: "Error saving content to DB",
+            status:
+              "Error saving content to DB: This link may be restricted to send response",
           });
         }
       } else {
@@ -194,72 +137,64 @@ exports.checkIfContentCached = async (req, res) => {
     res.status(500).send("Error : writing content to database");
   }
 };
+
 exports.compareContent = async (req, res) => {
   try {
-    const inputUrl = req.query.inputUrl;
+    const urls = req.body.urls; // Expect an array of URLs
 
-    let currentContent;
-    let currentStatus;
-    try {
-      //gets the current stage
-      data = await exports.fetchCurrentContent(inputUrl);
-      //sets the current stage to variables
-      currentContentObject = data;
-      console.log(
-        "currentContentObject:" + JSON.stringify(currentContentObject)
-      );
-      currentContent = currentContentObject.currentContent;
-      currentStatus = currentContentObject.Status;
-    } catch (error) {
-      if (error.response && error.response.status === 404) {
-        return res.status(404).send("This web link does not exist");
-      }
-      throw error;
+    // Check if urls is an array
+    if (!Array.isArray(urls)) {
+      return res.status(400).send("Invalid input - urls should be an array");
     }
 
-    let cachedContentObject;
-    let cachedContent;
-    let cachedStatus;
-    try {
-      //gets the latest cached stage
-      cachedContentObject = await exports.fetchCachedContent(inputUrl);
-      console.log("cachedContentObject:" + cachedContentObject);
-      cachedContent = cachedContentObject.data;
-      cachedStatus = cachedContentObject.responseStatus;
-    } catch (error) {
-      if (error.message === "No content found for the provided URL") {
-        console.log("This web link is not cached");
-        throw error;
+    let urlStatuses = []; // Array to store the status of each URL
+
+    for (let i = 0; i < urls.length; i++) {
+      let url = urls[i];
+
+      // Remove the protocol and 'www' from the URL
+      let fixedUrl = removeProtocolAndWWW(url);
+
+      // Add the protocol and 'www' back to the URL
+      let modifiedUrl = addProtocolAndWWW(fixedUrl);
+
+      // Fetch the current content and the cached content
+      const currentContent = await exports.fetchCurrentContent(modifiedUrl);
+      if (currentContent.data === null) {
+        continue;
       }
-      throw error;
+
+      const cachedContent = await exports.fetchCachedContent(fixedUrl);
+
+      // Compare the current and cached content
+      const contentHasChanged = currentContent.data !== cachedContent.data;
+      const isStatusSame =
+        currentContent.status === cachedContent.responseStatus;
+      const isStatusTextSame =
+        currentContent.responseStatusText === cachedContent.responseStatusText; // Add the status of the URL to the array
+      urlStatuses.push({
+        url: fixedUrl,
+        contentHasChanged: contentHasChanged,
+        isStatusSame: isStatusSame,
+        isStatusTextSame: isStatusTextSame,
+      });
+
+      // Create a record object and save it to the Records collection
+      const record = new Record({
+        url: fixedUrl,
+        contentHasChanged: contentHasChanged,
+        previousResponseStatus: cachedContent.responseStatus,
+        recentResponseStatus: currentContent.status,
+        previousResponseTime: cachedContent.responseTime,
+        recentResponseTime: currentContent.responseTime,
+      });
+      await record.save();
     }
 
-    //Compares if the content is the same
-    const isContentSame = currentContent === cachedContent;
-
-    //Compares if the status is the same
-    const isStatusSame = currentStatus === cachedStatus;
-    // if (!isContentSame) {
-    //   await sendContentChangedEmail("kahyaogluegecan@gmail.com");
-    // }
-    // await sendContentChangedSms(
-    //   "+905343195969",
-    //   "The content you are tracking has changed."
-    // );
-
-    const newRecordData = {
-      url: "mavididim.com",
-      previousResponseStatus: cachedContentObject.responseStatus,
-      recentResponseStatus: currentContent.Status,
-      previousResponseTime: 2500,
-      recentResponseTime: 5000,
-      contentHasChanged: true,
-    };
-
-    await saveRecord({ body: newRecordData }, res);
-    res.status(200).send({ isContentSame, isStatusSame });
+    // Send the array of URL statuses as the response
+    res.send(urlStatuses);
   } catch (error) {
-    console.error("Error comparing content:", error);
-    throw error;
+    console.error("Error : ", error);
+    res.status(500).send("Error :", error);
   }
 };

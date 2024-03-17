@@ -11,6 +11,7 @@ const ContentSchema = new mongoose.Schema({
   data: String,
   responseTime: Number,
   responseStatus: Number,
+  responseStatusText: String,
   createdAt: {
     type: Date,
     default: Date.now,

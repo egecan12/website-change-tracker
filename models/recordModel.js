@@ -8,7 +8,6 @@ const RecordSchema = new mongoose.Schema({
   },
   contentHasChanged: {
     type: Boolean,
-    default: false,
   },
   previousResponseStatus: {
     type: Number,

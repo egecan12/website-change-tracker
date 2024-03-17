@@ -1,5 +1,13 @@
 exports.removeProtocolAndWWW = (url) => {
-  let fixedUrl = url.toLowerCase().replace(/(https?:\/\/)?(www\.)?/, "");
+  let fixedUrl = url.toLowerCase();
+  // Check if the URL starts with "www" or "https"
+  if (
+    fixedUrl.startsWith("www.") ||
+    fixedUrl.startsWith("http://") ||
+    fixedUrl.startsWith("https://")
+  ) {
+    fixedUrl = fixedUrl.replace(/(https?:\/\/)?(www\.)?/, "");
+  }
   if (fixedUrl.endsWith("/")) {
     fixedUrl = fixedUrl.slice(0, -1);
   }
