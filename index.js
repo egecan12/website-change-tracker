@@ -3,12 +3,14 @@ const express = require("express");
 const app = express();
 const connectToDatabase = require("./databaseConnection");
 const contentRouter = require("./routes/contentRoutes");
+const targetRouter = require("./routes/targetLinkRoutes");
 
 connectToDatabase();
 
 //MIDDLEWARES
 app.use(express.json());
 app.use("/content", contentRouter);
+app.use("/targetlink", targetRouter);
 
 //ROUTES
 

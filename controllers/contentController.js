@@ -10,7 +10,8 @@ const {
   sendContentChangedEmail,
 } = require("../utils/emailSender/emailTemplates");
 const { sendSms } = require("../utils/smsSender/smsSender");
-// let siteUrl = "https://kahyaogluegecan.tech/sample-page/";
+
+//FUNCTIONS
 
 exports.fetchCurrentContent = async (inputUrl) => {
   try {
