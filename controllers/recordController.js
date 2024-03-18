@@ -119,7 +119,7 @@ exports.saveRecord = async (req, res) => {
 exports.showRecords = async (urls, next) => {
   try {
     // Convert array of urls to array of objects with url property
-    // urls.map((url) => ({ url }));
+
     const records = await exports.findRecords(urls);
 
     // Loop over each record and call writeToGoogleSheets

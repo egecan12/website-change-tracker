@@ -86,18 +86,6 @@ exports.compareContent = async (urls, next) => {
       // Compare the current and cached content
       const contentHasChanged =
         simplifiedCurrentContent !== simplifiedCachedContent;
-      // const isStatusSame =
-      //   currentContent.status === cachedContent.responseStatus;
-      // const isStatusTextSame =
-      //   currentContent.responseStatusText === cachedContent.responseStatusText;
-
-      // Add the status of the URL to the array
-      // urlStatuses.push({
-      //   url: fixedUrl,
-      //   contentHasChanged: contentHasChanged,
-      //   isStatusSame: isStatusSame,
-      //   isStatusTextSame: isStatusTextSame,
-      // });
 
       // Create a record object and save it to the Records collection
       const record = new Record({
@@ -109,8 +97,9 @@ exports.compareContent = async (urls, next) => {
         recentResponseTime: currentContent.responseTime,
       });
       await record.save();
+      //Here there should be message and email notification sender method
 
-      // Update the Content collection with currentContent where url equals fixedUrl
+      // Updates the Content collection with currentContent where url equals fixedUrl
       await Content.findOneAndUpdate(
         { url: fixedUrl },
         {

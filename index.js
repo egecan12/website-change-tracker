@@ -8,7 +8,7 @@ const recordRouter = require("./routes/recordRoutes");
 const appLogicRouter = require("./routes/appLogicRoutes");
 const { errorHandler } = require("./utils/errorHandler");
 require("dotenv").config();
-
+//Checks if all the process envs are set
 if (
   !process.env.DB_URI ||
   !process.env.SENDGRID_API_KEY ||
@@ -25,9 +25,9 @@ connectToDatabase();
 
 //MIDDLEWARES
 app.use(express.json());
-app.use("/content", contentRouter);
+
+//ROUTERS
 app.use("/targetlink", targetRouter);
-app.use("/record", recordRouter);
 app.use("/api", appLogicRouter);
 app.use(errorHandler);
 
