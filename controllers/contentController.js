@@ -48,11 +48,6 @@ exports.fetchCurrentContent = async (inputUrl) => {
 
 exports.compareContent = async (urls, next) => {
   try {
-    // Check if urls is an array
-    if (!Array.isArray(urls)) {
-      return res.status(400).send("Invalid input - urls should be an array");
-    }
-
     // Create an empty array to store the URLs
     let processedUrls = [];
 
