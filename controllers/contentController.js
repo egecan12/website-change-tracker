@@ -12,6 +12,8 @@ const {
 } = require("../utils/emailSender/emailTemplates");
 const { sendSms } = require("../utils/smsSender/smsSender");
 const { writeToGoogleSheets } = require("../utils/googleSheetsService");
+const { simplifyHTML } = require("../utils/htmlSimplifier");
+
 //FUNCTIONS
 
 exports.fetchCurrentContent = async (inputUrl) => {
@@ -168,9 +170,12 @@ exports.compareContent = async (req, res) => {
       if (cachedContent === null) {
         continue;
       }
+      const simplifiedCurrentContent = simplifyHTML(currentContent.data);
+      const simplifiedCachedContent = simplifyHTML(cachedContent.data);
 
       // Compare the current and cached content
-      const contentHasChanged = currentContent.data !== cachedContent.data;
+      const contentHasChanged =
+        simplifiedCurrentContent !== simplifiedCachedContent;
       const isStatusSame =
         currentContent.status === cachedContent.responseStatus;
       const isStatusTextSame =
@@ -193,27 +198,7 @@ exports.compareContent = async (req, res) => {
       });
       await record.save();
       // Write the new record to Google Sheets
-      // const mockRecords = [
-      //   {
-      //     url: "https://example.com",
-      //     records: ["200", "300ms", "No"],
-      //   },
-      //   {
-      //     url: "https://another-example.com",
-      //     records: ["404", "500ms", "Yes"],
-      //   },
-      //   {
-      //     url: "https://yet-another-example.com",
-      //     records: ["500", "600ms", "No"],
-      //   },
-      // ];
-
-      // // Call the function with the mock data
-      // try {
-      //   await writeToGoogleSheets(mockRecords);
-      // } catch (error) {
-      //   console.error("Error writing to Google Sheets:", error);
-      // }
+      await writeToGoogleSheets(record);
     }
 
     // Send the array of URL statuses as the response
