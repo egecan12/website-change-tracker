@@ -6,25 +6,42 @@ const {
   validURL,
 } = require("../utils/urlModifier");
 const { writeToGoogleSheets } = require("../utils/googleSheetsService");
-exports.fetchRecordsByLink = async (req, res) => {
-  try {
-    const url = req.params.url; // gets the URL from the request parameters
 
-    // checks if url is a valid URL
-    if (!validURL(url)) {
-      return res.status(400).send("Invalid URL");
+//FUNCTIONS
+exports.findRecords = async (req) => {
+  try {
+    const urls = req.body.urls; // Expect an array of objects with url property
+
+    // Check if urls is an array
+    if (!Array.isArray(urls)) {
+      throw new Error("Invalid input - urls should be an array");
     }
 
-    // fixes the urls before they are sent out to DB
-    const fixedInputUrl = removeProtocolAndWWW(url);
+    let records = []; // Array to store the records of each URL
 
-    // fetchs all records with the given URL
-    const records = await Record.find({ url: fixedInputUrl });
+    for (let i = 0; i < urls.length; i++) {
+      let url = urls[i].url;
 
-    res.status(200).json(records);
+      // Fetch the records for the URL
+      const urlRecords = await Record.find({ url: url });
+
+      // If urlRecords is empty, skip to the next item
+      if (urlRecords.length === 0) {
+        continue;
+      }
+
+      // Add the records to the array
+      records.push({
+        url: url,
+        records: urlRecords,
+      });
+    }
+
+    // Return the array of records
+    return records;
   } catch (error) {
-    console.error("Error fetching records from database:", error);
-    res.status(500).send("Error fetching records from database");
+    console.error("Error : fetching records from database:", error);
+    throw error;
   }
 };
 exports.fetchRecords = async (req, res) => {
@@ -103,5 +120,22 @@ exports.saveRecord = async (req, res) => {
   } catch (error) {
     console.error("Error saving record to database:", error);
     res.status(500).send("Error saving record to database");
+  }
+};
+exports.showRecords = async (req, res) => {
+  try {
+    // Convert array of urls to array of objects with url property
+    req.body.urls = req.body.urls.map((url) => ({ url }));
+    const records = await exports.findRecords(req);
+
+    // Loop over each record and call writeToGoogleSheets
+
+    await writeToGoogleSheets(records);
+
+    // Send a response
+    res.send("Records written to Google Sheets successfully");
+  } catch (error) {
+    console.error("Error writing records to Google Sheets:", error);
+    res.status(500).send("Error writing records to Google Sheets");
   }
 };
