@@ -5,6 +5,7 @@ const connectToDatabase = require("./databaseConnection");
 const contentRouter = require("./routes/contentRoutes");
 const targetRouter = require("./routes/targetLinkRoutes");
 const recordRouter = require("./routes/recordRoutes");
+const appLogicRouter = require("./routes/appLogicRoutes");
 const { errorHandler } = require("./utils/errorHandler");
 require("dotenv").config();
 
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use("/content", contentRouter);
 app.use("/targetlink", targetRouter);
 app.use("/record", recordRouter);
+app.use("/api", appLogicRouter);
 app.use(errorHandler);
 
 //ROUTES

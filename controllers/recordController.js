@@ -3,10 +3,8 @@ const { removeProtocolAndWWW, validURL } = require("../utils/urlModifier");
 const { writeToGoogleSheets } = require("../utils/googleSheetsService");
 
 //FUNCTIONS
-exports.findRecords = async (req) => {
+exports.findRecords = async (urls) => {
   try {
-    const urls = req.body.urls; // Expect an array of objects with url property
-
     // Check if urls is an array
     if (!Array.isArray(urls)) {
       throw new Error("Invalid input - urls should be an array");
@@ -15,7 +13,7 @@ exports.findRecords = async (req) => {
     let records = []; // Array to store the records of each URL
 
     for (let i = 0; i < urls.length; i++) {
-      let url = urls[i].url;
+      let url = urls[i];
 
       let fixedInputUrl = removeProtocolAndWWW(url);
 
@@ -118,18 +116,17 @@ exports.saveRecord = async (req, res) => {
     next(error);
   }
 };
-exports.showRecords = async (req, res, next) => {
+exports.showRecords = async (urls, next) => {
   try {
     // Convert array of urls to array of objects with url property
-    req.body.urls = req.body.urls.map((url) => ({ url }));
-    const records = await exports.findRecords(req);
+    // urls.map((url) => ({ url }));
+    const records = await exports.findRecords(urls);
 
     // Loop over each record and call writeToGoogleSheets
 
     await writeToGoogleSheets(records);
 
-    // Send a response
-    res.send("Records written to Google Sheets successfully");
+    return urls;
   } catch (error) {
     console.error("Error writing records to Google Sheets:", error);
     next(error);

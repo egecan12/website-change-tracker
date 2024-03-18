@@ -7,7 +7,6 @@ const TargetLinkSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
   },
-  urlRoot: String,
   createdAt: {
     type: Date,
     default: Date.now,

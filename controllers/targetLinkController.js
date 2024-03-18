@@ -11,7 +11,8 @@ const {
 exports.fetchTargetLinks = async (req, res, next) => {
   try {
     const targetLinks = await TargetLink.find({});
-    res.status(200).send(targetLinks);
+    // res.status(200).send(targetLinks);
+    return targetLinks;
   } catch (error) {
     next(error);
   }
@@ -39,9 +40,6 @@ exports.saveTargetLink = async (req, res, next) => {
       const modifiedUrl = addProtocolAndWWW(url);
       const urlObj = new URL(modifiedUrl);
 
-      const urlRoot = urlObj.origin;
-      const fixedurlRoot = removeProtocolAndWWW(urlRoot);
-
       // Check if a record with the same url already exists
       const existingTargetLink = await TargetLink.findOne({
         url: fixedInputUrl,
@@ -54,7 +52,6 @@ exports.saveTargetLink = async (req, res, next) => {
       // If no existing record, save the new target link
       const newTargetLink = new TargetLink({
         url: fixedInputUrl,
-        urlRoot: fixedurlRoot,
       });
 
       await newTargetLink.save();

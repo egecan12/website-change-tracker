@@ -7,7 +7,6 @@ const ContentSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
   },
-  urlRoot: String,
   data: String,
   responseTime: Number,
   responseStatus: Number,
