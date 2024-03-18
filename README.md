@@ -2,6 +2,10 @@
 
 This is a web application that monitors specific changes on a webpage. It's built with Node.js and Express, and uses MongoDB for the database.
 
+## Project Diagram
+
+![website-tracker drawio](https://github.com/egecan12/website-change-tracker/assets/45043515/9be423b6-0950-49ac-b928-ceb2b450cf9d)
+
 ## Features
 
 - Monitor specific changes on a webpage
