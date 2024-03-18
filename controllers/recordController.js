@@ -5,6 +5,7 @@ const {
   addProtocolAndWWW,
   validURL,
 } = require("../utils/urlModifier");
+const { writeToGoogleSheets } = require("../utils/googleSheetsService");
 exports.fetchRecordsByLink = async (req, res) => {
   try {
     const url = req.params.url; // gets the URL from the request parameters

@@ -11,8 +11,7 @@ const {
   sendContentChangedEmail,
 } = require("../utils/emailSender/emailTemplates");
 const { sendSms } = require("../utils/smsSender/smsSender");
-const { saveRecord } = require("./recordController");
-
+const { writeToGoogleSheets } = require("../utils/googleSheetsService");
 //FUNCTIONS
 
 exports.fetchCurrentContent = async (inputUrl) => {
@@ -55,7 +54,7 @@ exports.fetchCachedContent = async (inputUrl) => {
       .limit(1);
 
     if (!content) {
-      throw new Error("No content found for the provided URL");
+      console.log("No content found for the provided URL");
     }
     return content;
   } catch (error) {
@@ -118,7 +117,7 @@ exports.checkIfContentCached = async (req, res) => {
           urlStatuses.push({
             url: inputUrl,
             status:
-              "Error saving content to DB: This link may be restricted to send response",
+              "Error saving content to DB: This link may be restricted to send response or the server's SSL/TLS certificate is missing, expired, or invalid, it can cause this error",
           });
         }
       } else {
@@ -166,6 +165,10 @@ exports.compareContent = async (req, res) => {
 
       const cachedContent = await exports.fetchCachedContent(fixedUrl);
 
+      if (cachedContent === null) {
+        continue;
+      }
+
       // Compare the current and cached content
       const contentHasChanged = currentContent.data !== cachedContent.data;
       const isStatusSame =
@@ -189,6 +192,28 @@ exports.compareContent = async (req, res) => {
         recentResponseTime: currentContent.responseTime,
       });
       await record.save();
+      // Write the new record to Google Sheets
+      // const mockRecords = [
+      //   {
+      //     url: "https://example.com",
+      //     records: ["200", "300ms", "No"],
+      //   },
+      //   {
+      //     url: "https://another-example.com",
+      //     records: ["404", "500ms", "Yes"],
+      //   },
+      //   {
+      //     url: "https://yet-another-example.com",
+      //     records: ["500", "600ms", "No"],
+      //   },
+      // ];
+
+      // // Call the function with the mock data
+      // try {
+      //   await writeToGoogleSheets(mockRecords);
+      // } catch (error) {
+      //   console.error("Error writing to Google Sheets:", error);
+      // }
     }
 
     // Send the array of URL statuses as the response
