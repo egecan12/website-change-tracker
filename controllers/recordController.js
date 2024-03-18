@@ -22,8 +22,10 @@ exports.findRecords = async (req) => {
     for (let i = 0; i < urls.length; i++) {
       let url = urls[i].url;
 
+      let fixedInputUrl = removeProtocolAndWWW(url);
+
       // Fetch the records for the URL
-      const urlRecords = await Record.find({ url: url });
+      const urlRecords = await Record.find({ url: fixedInputUrl });
 
       // If urlRecords is empty, skip to the next item
       if (urlRecords.length === 0) {
