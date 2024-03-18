@@ -38,9 +38,9 @@ exports.fetchCurrentContent = async (inputUrl) => {
     console.error("Error fetching website content:", error);
     return {
       data: null,
-      status: "error",
+      status: 404,
       responseTime: null,
-      responseStatusText: "Error fetching website content",
+      responseStatusText: "Not Found",
       errorMessage: error.message,
     };
   }
@@ -91,9 +91,17 @@ exports.checkIfContentCached = async (req, res) => {
         console.log("No content found for the provided URL. Saving content...");
         try {
           const startTime = Date.now();
-          const response = await axios.get(modifedUrl);
-          const responseTime = Date.now() - startTime;
-          console.log(`Response time for ${inputUrl}: ${responseTime} ms`);
+          let response;
+          let responseTime;
+
+          try {
+            response = await axios.get(modifedUrl);
+            responseTime = Date.now() - startTime;
+            console.log(`Response time for ${inputUrl}: ${responseTime} ms`);
+          } catch (error) {
+            console.log(`Failed to fetch ${inputUrl}`);
+            responseTime = Date.now() - startTime;
+          }
 
           const url = new URL(modifedUrl);
           const urlRoot = url.origin;
@@ -101,10 +109,10 @@ exports.checkIfContentCached = async (req, res) => {
           const newContent = new Content({
             url: fixedUrl,
             urlRoot: urlRoot,
-            data: response.data,
+            data: response?.data ?? "", // Set response.data to an empty string if it is null or response is undefined
             responseTime: responseTime,
-            responseStatus: response.status,
-            responseStatusText: response.statusText,
+            responseStatus: response ? response.status : 404,
+            responseStatusText: response ? response.statusText : "Not Found",
           });
           await newContent.save();
 
@@ -139,7 +147,7 @@ exports.checkIfContentCached = async (req, res) => {
   }
 };
 
-exports.compareContent = async (req, res) => {
+exports.compareContent = async (req, res, next) => {
   try {
     const urls = req.body.urls; // Expect an array of URLs
 
@@ -160,18 +168,15 @@ exports.compareContent = async (req, res) => {
       let modifiedUrl = addProtocolAndWWW(fixedUrl);
 
       // Fetch the current content and the cached content
-      const currentContent = await exports.fetchCurrentContent(modifiedUrl);
-      if (currentContent.data === null) {
-        continue;
-      }
+      let currentContent = await exports.fetchCurrentContent(modifiedUrl);
 
       const cachedContent = await exports.fetchCachedContent(fixedUrl);
 
       if (cachedContent === null) {
         continue;
       }
-      const simplifiedCurrentContent = simplifyHTML(currentContent.data);
-      const simplifiedCachedContent = simplifyHTML(cachedContent.data);
+      const simplifiedCurrentContent = simplifyHTML(currentContent.data ?? "");
+      const simplifiedCachedContent = simplifyHTML(cachedContent.data ?? "");
 
       // Compare the current and cached content
       const contentHasChanged =
@@ -198,13 +203,12 @@ exports.compareContent = async (req, res) => {
       });
       await record.save();
       // Write the new record to Google Sheets
-      await writeToGoogleSheets(record);
+      // await writeToGoogleSheets(record);
     }
 
     // Send the array of URL statuses as the response
     res.send(urlStatuses);
   } catch (error) {
-    console.error("Error : ", error);
-    res.status(500).send("Error :", error);
+    next(error);
   }
 };

@@ -8,18 +8,16 @@ const {
 } = require("../utils/urlModifier");
 
 //FUNCTIONS
-exports.fetchTargetLinks = async (req, res) => {
+exports.fetchTargetLinks = async (req, res, next) => {
   try {
     const targetLinks = await TargetLink.find({});
     res.status(200).send(targetLinks);
   } catch (error) {
-    res.status(500).send("Error fetching target links from database");
-    console.error("Error fetching target links from database:", error);
-    throw error;
+    next(error);
   }
 };
 
-exports.saveTargetLink = async (req, res) => {
+exports.saveTargetLink = async (req, res, next) => {
   try {
     const urls = req.body.urls; // Expect an array of URLs
 
@@ -65,7 +63,7 @@ exports.saveTargetLink = async (req, res) => {
     res.status(200).send("Target links saved successfully");
   } catch (error) {
     console.error("Error saving target links to database:", error);
-    res.status(500).send("Error saving target links to database");
+    next(error);
   }
 };
 

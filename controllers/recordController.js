@@ -1,10 +1,5 @@
-const axios = require("axios");
 const Record = require("../models/recordModel");
-const {
-  removeProtocolAndWWW,
-  addProtocolAndWWW,
-  validURL,
-} = require("../utils/urlModifier");
+const { removeProtocolAndWWW, validURL } = require("../utils/urlModifier");
 const { writeToGoogleSheets } = require("../utils/googleSheetsService");
 
 //FUNCTIONS
@@ -120,11 +115,10 @@ exports.saveRecord = async (req, res) => {
 
     // Do not send a response here
   } catch (error) {
-    console.error("Error saving record to database:", error);
-    res.status(500).send("Error saving record to database");
+    next(error);
   }
 };
-exports.showRecords = async (req, res) => {
+exports.showRecords = async (req, res, next) => {
   try {
     // Convert array of urls to array of objects with url property
     req.body.urls = req.body.urls.map((url) => ({ url }));
@@ -138,6 +132,6 @@ exports.showRecords = async (req, res) => {
     res.send("Records written to Google Sheets successfully");
   } catch (error) {
     console.error("Error writing records to Google Sheets:", error);
-    res.status(500).send("Error writing records to Google Sheets");
+    next(error);
   }
 };
