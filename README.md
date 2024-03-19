@@ -60,4 +60,10 @@ example req.body = {
 
 Please do not forget including googlesheets credentials keyfile as json file!
 
-developed by Egecan Kahyaoglu.
+## Development Notes
+
+1)When I compare the contents of websites, I notice that most websites are using some sort of dynamic variables and attribute names based on the currentDate to protect themselves from XSS attacks. This situation causes the contentHasChanged variable to always return true. In order to minimize this issue, I installed the Cheerio npm package to exclude style and script tags, as well as attribute names. The code now only includes the HTML content within the <body> tags. Please keep in mind that this makes the comparison less strict, so if there are any changes to the design of the website, the code may not detect them since it excludes style tags.
+
+However, you can always revert this by modifying the code in the compare function, removing the htmlSimplifier around the currentContent, as well as the cachedContent on lines 83-84.
+
+Developed by Egecan Kahyaoglu.

@@ -97,7 +97,17 @@ exports.compareContent = async (urls, next) => {
         recentResponseTime: currentContent.responseTime,
       });
       await record.save();
-      //Here there should be message and email notification sender method
+      // Send email and SMS notifications if the content has changed
+      if (contentHasChanged) {
+        await sendContentChangedEmail(
+          process.env.EMAIL_RECEIVER_ADDRESS,
+          fixedUrl
+        );
+        // await sendContentChangedSms(
+        //   "+905343195969",
+        //   "The content you are tracking has changed."
+        // );
+      }
 
       // Updates the Content collection with currentContent where url equals fixedUrl
       await Content.findOneAndUpdate(
