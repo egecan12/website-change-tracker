@@ -57,6 +57,6 @@ example req.body = {
 }
 ```
 
-Please do not forget including googlesheets credentials keyfile as json file
+Please do not forget including googlesheets credentials keyfile as json file!
 
-developed by Egecan Kahyaoglu
+developed by Egecan Kahyaoglu.
