@@ -10,7 +10,7 @@ This is an API that monitors specific changes on a webpage. It's built with Node
 
 - Monitor specific changes on a webpage
 - Send notifications via email and SMS when changes are detected
-- Show records on a spreadsheet
+- Show history records on a spreadsheet
 
 ## Prerequisites
 
@@ -34,8 +34,13 @@ npm install
 npm start
 ```
 
-Important Notes:
-Create a .env file in the root directory of the project, and add your environment variables:
+## Setting Environment Variables:
+
+Create .env file in the root directory of the project, and add your environment variables:
+
+or
+
+You can also check example.env file
 
 ```sh
 DB_URI=your_mongodb_uri
@@ -62,11 +67,11 @@ example req.body = {
 
 Please do not forget including googlesheets credentials keyfile as json file!
 
-## Development Notes
+## Important Notes
 
-1)When I compare the contents of websites, I notice that most websites are using some sort of dynamic variables and attribute names based on the currentDate to protect themselves from XSS attacks. This situation causes the contentHasChanged variable to always return true. In order to minimize this issue, I installed the Cheerio npm package to exclude style and script tags, as well as attribute names. The code now only includes the HTML content within the <body> tags. Please keep in mind that this makes the comparison less strict, so if there are any changes to the design of the website, the code may not detect them since it excludes style tags.
+1)When comparing website contents, I've observed that many sites use dynamic variables and attribute names, often based on the current date, to guard against XSS attacks. This causes the contentHasChanged variable to consistently return true. To mitigate this, I've incorporated the Cheerio npm package, which excludes style and script tags, as well as attribute names. However, this approach makes the comparison less stringent. Therefore, any design changes on the website may go undetected as the code excludes style tags. Despite my efforts, some sites still indicate a change in content. This is due to dynamic elements, such as a clock or other variables, that constantly change.
 
-However, you can always revert this by modifying the code in the compare function, removing the htmlSimplifier around the currentContent, as well as the cachedContent on lines 83-84.
+You can always revert or adjust this by modifying the code in htmlSimplifier.js
 
 2)Since TWILIO API costs me credits(real money $🙈), I usually comment out the SMS_Sending function in Services.js line 103-106. Please make sure it is commented in.
 
