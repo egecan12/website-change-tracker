@@ -1,4 +1,5 @@
 const { google } = require("googleapis");
+require("dotenv").config();
 
 exports.writeToGoogleSheets = async function (historyRecords) {
   //   const mockRecords = [
@@ -100,12 +101,12 @@ exports.writeToGoogleSheets = async function (historyRecords) {
     // Authenticate with your credentials
 
     const auth = new google.auth.GoogleAuth({
-      keyFile: "website-tracker-app-1b96223482da.json",
+      keyFile: process.env.SPREADSHEET_KEYFILE_NAME,
       scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     });
     const sheets = google.sheets({ version: "v4", auth }); // Creates a Sheets API client instance.
-    const spreadsheetId = "1ZQ1BrY_xqKSF79Mq7tNHmYuHMecmUVYBaDYau_sR54o"; // The ID of the spreadsheet.
-    const range = "Sayfa1!A1"; // The range in the sheet where data will be written.
+    const spreadsheetId = process.env.SPREADSHEET_ID; // The ID of the spreadsheet.
+    const range = process.env.SPREADSHEET_RANGE; // The range in the sheet where data will be written.
     const valueInputOption = "USER_ENTERED"; // How input data should be interpreted.
 
     const resource = { values }; // The data to be written.
