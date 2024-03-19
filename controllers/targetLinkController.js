@@ -8,14 +8,6 @@ const {
 } = require("../utils/urlModifier");
 
 //FUNCTIONS
-exports.fetchTargetLinks = async (req, res, next) => {
-  try {
-    const targetLinks = await TargetLink.find({});
-    return targetLinks;
-  } catch (error) {
-    next(error);
-  }
-};
 
 exports.saveTargetLink = async (req, res, next) => {
   try {

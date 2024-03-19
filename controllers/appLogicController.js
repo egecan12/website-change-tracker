@@ -1,11 +1,10 @@
-const contentController = require("../controllers/contentController");
-const recordController = require("../controllers/recordController");
-const targetLinkController = require("../controllers/targetLinkController");
+const services = require("../utils/services");
+const TargetLink = require("../models/targetLinkModel");
 
 exports.runOperation = async (req, res, next) => {
   try {
     // Gets websites' url links from TargetLinks collection
-    const targetLinks = await targetLinkController.fetchTargetLinks();
+    const targetLinks = await TargetLink.find({});
 
     // Makes sure targetLinks are in an array
     if (!Array.isArray(targetLinks)) {
@@ -20,7 +19,7 @@ exports.runOperation = async (req, res, next) => {
     //4)Sends notifications if contentHasChanged == true
     //5)Updates the cached content with the most recent content.
     //6)Saves comparison record to Records collection
-    const comparedLinks = await contentController.compareContent(
+    const comparedLinks = await services.compareContent(
       targetLinks,
       (error) => {
         if (error) {
@@ -30,7 +29,7 @@ exports.runOperation = async (req, res, next) => {
       }
     );
     //Writes comparison records  to a Google Spreadsheet
-    const resultedLinks = await recordController.showRecords(comparedLinks);
+    const resultedLinks = await services.showRecords(comparedLinks);
 
     res
       .status(200)
