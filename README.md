@@ -54,7 +54,7 @@ To be able to run the app, you must set url links, sending a post request to
 ```sh
 "http://localhost:8000/targetlink/add"
 example req.body = {
-"urls": ["mern-redux-twitter-clone.onrender.com/","https://www.google.com/search?client=firefox-b-d&q=homesense+luggage+buy", "https://translate.google.com/", "https://www.makeuseof.com/using-galaxy-watch-with-iphone/" ]
+"urls": ["youexampleweblink.com/","www.kahyaogluegecan.tech", "https://translate.google.com/", "https://www.makeuseof.com/using-galaxy-watch-with-iphone/" ]
 }
 ```
 

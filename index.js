@@ -1,13 +1,11 @@
+require("dotenv").config();
 const http = require("http");
 const express = require("express");
 const app = express();
 const connectToDatabase = require("./databaseConnection");
-const contentRouter = require("./routes/contentRoutes");
 const targetRouter = require("./routes/targetLinkRoutes");
-const recordRouter = require("./routes/recordRoutes");
 const appLogicRouter = require("./routes/appLogicRoutes");
 const { errorHandler } = require("./utils/errorHandler");
-require("dotenv").config();
 //Checks if all the process envs are set
 if (
   !process.env.DB_URI ||

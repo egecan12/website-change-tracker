@@ -11,7 +11,6 @@ const {
 exports.fetchTargetLinks = async (req, res, next) => {
   try {
     const targetLinks = await TargetLink.find({});
-    // res.status(200).send(targetLinks);
     return targetLinks;
   } catch (error) {
     next(error);
