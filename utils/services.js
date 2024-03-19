@@ -36,7 +36,7 @@ exports.fetchCurrentContent = async (inputUrl) => {
     console.error("Error fetching website content:", error);
     return {
       data: null,
-      status: 404,
+      status: 111,
       responseTime: null,
       responseStatusText: "Not Found",
       errorMessage: error.message,

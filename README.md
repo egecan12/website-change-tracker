@@ -66,4 +66,6 @@ Please do not forget including googlesheets credentials keyfile as json file!
 
 However, you can always revert this by modifying the code in the compare function, removing the htmlSimplifier around the currentContent, as well as the cachedContent on lines 83-84.
 
+2)Since TWILIO API costs me credits(real money $🙈), I usually comment out the SMS_Sending function in Services.js line 103-106. Please make sure it is commented in.
+
 Developed by Egecan Kahyaoglu.
