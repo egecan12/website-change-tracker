@@ -91,6 +91,21 @@ exports.compareContent = async (urls) => {
     const contentHasChanged =
       simplifiedCurrentContent !== simplifiedCachedContent;
 
+    // Send email and SMS notifications if the content has changed and if the record exists
+    const urlCompareRecord = await Record.find({ url: fixedUrl });
+    if (urlCompareRecord.length > 0) {
+      if (contentHasChanged) {
+        await sendContentChangedEmail(
+          process.env.EMAIL_RECEIVER_ADDRESS,
+          fixedUrl
+        );
+        // await sendContentChangedSms(
+        //   "SMS_RECEIVER_NUMBER",
+        //   "The content you are tracking has changed."
+        // );
+      }
+    }
+
     // Create a record object and save it to the Records collection
     const record = new Record({
       url: fixedUrl,
@@ -103,18 +118,6 @@ exports.compareContent = async (urls) => {
       recentResponseStatusText: currentContent.responseStatusText,
     });
     await record.save();
-    // Send email and SMS notifications if the content has changed
-    if (contentHasChanged) {
-      await sendContentChangedEmail(
-        process.env.EMAIL_RECEIVER_ADDRESS,
-        fixedUrl
-      );
-      // await sendContentChangedSms(
-      //   "+905343195969",
-      //   "The content you are tracking has changed."
-      // );
-    }
-
     // Updates the Content collection with currentContent where url equals fixedUrl
     const updatedContent = await Content.findOneAndUpdate(
       { url: fixedUrl },

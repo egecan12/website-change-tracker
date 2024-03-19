@@ -70,4 +70,6 @@ However, you can always revert this by modifying the code in the compare functio
 
 2)Since TWILIO API costs me credits(real money $🙈), I usually comment out the SMS_Sending function in Services.js line 103-106. Please make sure it is commented in.
 
+3)When it runs for the first time, it will not display the spreadsheet data nor send any notifications, as there is no cached data to show.
+
 Developed by Egecan Kahyaoglu.
