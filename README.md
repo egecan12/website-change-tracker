@@ -4,7 +4,7 @@ This is a web application that monitors specific changes on a webpage. It's buil
 
 ## Project Diagram
 
-![website-tracker drawio](https://github.com/egecan12/website-change-tracker/assets/45043515/9be423b6-0950-49ac-b928-ceb2b450cf9d)
+![diagram](https://github.com/egecan12/website-change-tracker/assets/45043515/70c66fc4-b53d-4d72-998e-7fd01eb11515)
 
 ## Features
 
