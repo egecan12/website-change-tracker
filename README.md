@@ -1,6 +1,6 @@
-# Website Monitoring App
+# Website Monitoring API
 
-This is a web application that monitors specific changes on a webpage. It's built with Node.js and Express, and uses MongoDB for the database.
+This is an API that monitors specific changes on a webpage. It's built with Node.js and Express, and uses MongoDB for the database.
 
 ## Project Diagram
 
@@ -10,6 +10,7 @@ This is a web application that monitors specific changes on a webpage. It's buil
 
 - Monitor specific changes on a webpage
 - Send notifications via email and SMS when changes are detected
+- Show records on a spreadsheet
 
 ## Prerequisites
 
