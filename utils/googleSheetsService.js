@@ -2,74 +2,6 @@ const { google } = require("googleapis");
 require("dotenv").config();
 
 exports.writeToGoogleSheets = async function (historyRecords) {
-  //   const mockRecords = [
-  //     {
-  //       url: "kahyaogluegecan.tech/sample-page",
-  //       records: [
-  //         {
-  //           _id: "65f75a416744e27a61ddf8b1",
-  //           url: "kahyaogluegecan.tech/sample-page",
-  //           contentHasChanged: false,
-  //           previousResponseStatus: 200,
-  //           recentResponseStatus: 200,
-  //           previousResponseTime: 1661,
-  //           recentResponseTime: 1521,
-  //           createdAt: "2024-03-17T21:01:53.721Z",
-  //           __v: 0,
-  //         },
-  //         {
-  //           _id: "65f76708cfab854be0273062",
-  //           url: "kahyaogluegecan.tech/sample-page",
-  //           contentHasChanged: false,
-  //           previousResponseStatus: 200,
-  //           recentResponseStatus: 200,
-  //           previousResponseTime: 1661,
-  //           recentResponseTime: 1648,
-  //           createdAt: "2024-03-17T21:56:24.836Z",
-  //           __v: 0,
-  //         },
-  //         {
-  //           _id: "65f77b69d42fb7fdd272c389",
-  //           url: "kahyaogluegecan.tech/sample-page",
-  //           contentHasChanged: false,
-  //           previousResponseStatus: 200,
-  //           recentResponseStatus: 200,
-  //           previousResponseTime: 1661,
-  //           recentResponseTime: 2432,
-  //           createdAt: "2024-03-17T23:23:21.566Z",
-  //           __v: 0,
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       url: "https://www.guvenlicocuk.org.tr/meslekler/avukat",
-  //       records: [
-  //         {
-  //           _id: "65f75a426744e27a61ddf8b4",
-  //           url: "guvenlicocuk.org.tr/meslekler/avukat",
-  //           contentHasChanged: true,
-  //           previousResponseStatus: 200,
-  //           recentResponseStatus: 200,
-  //           previousResponseTime: 316,
-  //           recentResponseTime: 205,
-  //           createdAt: "2024-03-17T21:01:54.733Z",
-  //           __v: 0,
-  //         },
-  //         {
-  //           _id: "65f76709cfab854be0273065",
-  //           url: "guvenlicocuk.org.tr/meslekler/avukat",
-  //           contentHasChanged: true,
-  //           previousResponseStatus: 200,
-  //           recentResponseStatus: 200,
-  //           previousResponseTime: 316,
-  //           recentResponseTime: 230,
-  //           createdAt: "2024-03-17T21:56:25.616Z",
-  //           __v: 0,
-  //         },
-  //       ],
-  //     },
-  //   ];
-
   // Define the titles for your cells
   const titles = [
     "URL",
@@ -78,6 +10,8 @@ exports.writeToGoogleSheets = async function (historyRecords) {
     "Recent Status",
     "Previous Response Time",
     "Recent Response Time",
+    "Previous Response Message",
+    "Recent Response Message",
     "Created At",
   ];
 
@@ -92,6 +26,8 @@ exports.writeToGoogleSheets = async function (historyRecords) {
         record.recentResponseStatus,
         record.previousResponseTime,
         record.recentResponseTime,
+        record.previousResponseStatusText,
+        record.recentResponseStatusText,
         record.createdAt,
       ])
     ),

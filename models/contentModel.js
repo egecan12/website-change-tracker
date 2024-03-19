@@ -10,7 +10,10 @@ const ContentSchema = new mongoose.Schema({
   data: String,
   responseTime: Number,
   responseStatus: Number,
-  responseStatusText: String,
+  responseStatusText: {
+    type: String,
+    default: "Not Found",
+  },
   createdAt: {
     type: Date,
     default: Date.now,

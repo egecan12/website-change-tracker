@@ -16,11 +16,18 @@ const { simplifyHTML } = require("../utils/htmlSimplifier");
 
 exports.fetchCurrentContent = async (inputUrl) => {
   try {
-    const fixedUrl = addProtocolAndWWW(inputUrl);
+    const modifiedUrl = addProtocolAndWWW(inputUrl);
 
     // Record the start time
     const startTime = Date.now();
-    const response = await axios.get(fixedUrl);
+    const response = await axios.get(modifiedUrl, {
+      headers: {
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
+      },
+    });
     // Record the end time
     const endTime = Date.now();
 
@@ -36,9 +43,9 @@ exports.fetchCurrentContent = async (inputUrl) => {
     console.error("Error fetching website content:", error);
     return {
       data: null,
-      status: 111,
-      responseTime: null,
-      responseStatusText: "Not Found",
+      status: 0,
+      responseTime: 0,
+      responseStatusText: "This url does not return any response",
       errorMessage: error.message,
     };
   }
@@ -92,6 +99,8 @@ exports.compareContent = async (urls) => {
       recentResponseStatus: currentContent.status,
       previousResponseTime: cachedContent.responseTime,
       recentResponseTime: currentContent.responseTime,
+      previousResponseStatusText: cachedContent.responseStatusText,
+      recentResponseStatusText: currentContent.responseStatusText,
     });
     await record.save();
     // Send email and SMS notifications if the content has changed
@@ -107,18 +116,19 @@ exports.compareContent = async (urls) => {
     }
 
     // Updates the Content collection with currentContent where url equals fixedUrl
-    await Content.findOneAndUpdate(
+    const updatedContent = await Content.findOneAndUpdate(
       { url: fixedUrl },
       {
         $set: {
           data: currentContent.data,
           responseTime: currentContent.responseTime,
           responseStatus: currentContent.status,
-          responseStatusText: currentContent.statusText,
+          responseStatusText: currentContent.responseStatusText,
         },
       },
       { new: true, upsert: true }
     );
+    console.log(updatedContent);
   }
 
   // Returns the input array

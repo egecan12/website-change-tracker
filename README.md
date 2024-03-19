@@ -47,6 +47,8 @@ TWILIO_PHONE_NUMBER=your_twilio_phone_number
 SPREADSHEETID=your_id
 SPREADSHEET_KEYFILE_NAME=your_keyfile_name
 SPREADSHEET_RANGE=Sheet1!A1
+EMAIL_RECEIVER_ADDRESS=receiver_email_address
+SMS_RECEIVER_NUMBER=receiver_phone_number
 ```
 
 To be able to run the app, you must set url links, sending a post request to

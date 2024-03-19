@@ -21,6 +21,14 @@ const RecordSchema = new mongoose.Schema({
   recentResponseTime: {
     type: Number,
   },
+  previousResponseStatusText: {
+    type: String,
+    default: "Not Found",
+  },
+  recentResponseStatusText: {
+    type: String,
+    default: "Not Found",
+  },
   createdAt: {
     type: Date,
     default: Date.now,
