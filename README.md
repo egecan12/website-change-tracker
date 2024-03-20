@@ -55,7 +55,7 @@ SPREADSHEET_RANGE=add_your_range_as_Sheet1!A1
 EMAIL_RECEIVER_ADDRESS=add_your_email_address
 SMS_RECEIVER_NUMBER=add_your_number_as_+15555555555
 CRON_TIMER=add_cron_schedule_as_*/5 * * * *
-HOST=for_deployment_set_0.0.0.0
+HOST=for_deployment_set_0.0.0.0_for_localhost_keep_empty
 SECRET_KEY=crete_your_own_key_as_random_numbers
 ```
 
