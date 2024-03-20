@@ -102,11 +102,13 @@ curl --location 'http://localhost:8000/'
 
 For testing purposes, the cron job has been disabled and no triggers have been set. This allows you to manually trigger it via Postman.
 
+Here is my API on server.
+
 ```sh
 https://website-change-tracker.onrender.com
 ```
 
-You can import my Postman collection to access the endpoints.It is located in the project root.
+To access the API endpoints and start testing, import the Postman collection located in the project root.
 
 Please contact me for SECRET_KEY
 

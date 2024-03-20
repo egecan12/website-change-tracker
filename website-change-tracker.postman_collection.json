@@ -1,0 +1,239 @@
+{
+	"info": {
+		"_postman_id": "f7c2f67d-dcc5-4e5b-9b09-2ca91419f102",
+		"name": "website-change-tracker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16360568"
+	},
+	"item": [
+		{
+			"name": "LIVE",
+			"item": [
+				{
+					"name": "Website Links",
+					"item": [
+						{
+							"name": "Delete Website Links",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"urls\": [\"https://nodejs.org/docs/latest/api/\", \"https://www.npmjs.com/support\", \"https://www.w3schools.com/mongodb/\" ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/targetlink/delete",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"targetlink",
+										"delete"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Website Links",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-secret-key",
+										"value": "",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"urls\": [\"https://nodejs.org/docs/latest/api/\", \"https://www.npmjs.com/support\", \"https://www.w3schools.com/mongodb/\" ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://website-change-tracker.onrender.com/targetlink/add",
+									"protocol": "https",
+									"host": [
+										"website-change-tracker",
+										"onrender",
+										"com"
+									],
+									"path": [
+										"targetlink",
+										"add"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Validate API Works",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://website-change-tracker.onrender.com/",
+							"protocol": "https",
+							"host": [
+								"website-change-tracker",
+								"onrender",
+								"com"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Start Operation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://website-change-tracker.onrender.com/api/run-operation",
+							"protocol": "https",
+							"host": [
+								"website-change-tracker",
+								"onrender",
+								"com"
+							],
+							"path": [
+								"api",
+								"run-operation"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Local",
+			"item": [
+				{
+					"name": "Website Links",
+					"item": [
+						{
+							"name": "Add Website Links",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-secret-key",
+										"value": "",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"urls\": [\"https://nodejs.org/docs/latest/api/\", \"https://www.npmjs.com/support\", \"https://www.w3schools.com/mongodb/\" ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/targetlink/add",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"targetlink",
+										"add"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Website Links",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"urls\": [\"https://nodejs.org/docs/latest/api/\", \"https://www.npmjs.com/support\", \"https://www.w3schools.com/mongodb/\" ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8000/targetlink/delete",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"targetlink",
+										"delete"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Start Operation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/api/run-operation",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"run-operation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Validate API works",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
