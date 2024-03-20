@@ -15,12 +15,16 @@ const { simplifyHTML } = require("../utils/htmlSimplifier");
 // This function fetches content from a URL, calculates the response time, and returns an object with the response details.
 
 exports.fetchCurrentContent = async (inputUrl) => {
+  let response;
+  let responseTime;
+  let error;
+
   try {
     const modifiedUrl = addProtocolAndWWW(inputUrl);
 
     // Record the start time
     const startTime = Date.now();
-    const response = await axios.get(modifiedUrl, {
+    response = await axios.get(modifiedUrl, {
       headers: {
         Accept:
           "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
@@ -32,23 +36,23 @@ exports.fetchCurrentContent = async (inputUrl) => {
     const endTime = Date.now();
 
     // Calculate the response time
-    const responseTime = endTime - startTime;
-    return {
-      data: response.data,
-      status: response.status,
-      responseTime: responseTime,
-      responseStatusText: response.statusText,
-    };
-  } catch (error) {
-    console.error("Error fetching website content:", error);
-    return {
-      data: null,
-      status: 0,
-      responseTime: 0,
-      responseStatusText: "This url does not return any response",
-      errorMessage: error.message,
-    };
+    responseTime = endTime - startTime;
+  } catch (err) {
+    error = err;
+    if (axios.isAxiosError(error)) {
+      response = error.response;
+    }
   }
+
+  return {
+    data: response ? response.data : null,
+    status: response ? response.status : 0,
+    responseTime: responseTime || 0,
+    responseStatusText: response
+      ? response.statusText
+      : "This url does not return any response",
+    errorMessage: error ? error.message : null,
+  };
 };
 // This function compares the current content of each URL in the input array with its cached content.
 // If the content has changed, it sends an email notification and updates the record in the database.

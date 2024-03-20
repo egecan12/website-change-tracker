@@ -12,7 +12,7 @@ const ContentSchema = new mongoose.Schema({
   responseStatus: Number,
   responseStatusText: {
     type: String,
-    default: "Not Found",
+    default: "N/A",
   },
   createdAt: {
     type: Date,

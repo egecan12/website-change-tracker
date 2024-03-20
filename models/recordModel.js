@@ -23,11 +23,11 @@ const RecordSchema = new mongoose.Schema({
   },
   previousResponseStatusText: {
     type: String,
-    default: "Not Found",
+    default: "N/A",
   },
   recentResponseStatusText: {
     type: String,
-    default: "Not Found",
+    default: "N/A",
   },
   createdAt: {
     type: Date,

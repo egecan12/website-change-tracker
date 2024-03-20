@@ -42,7 +42,7 @@ exports.start = async () => {
 exports.runOperation = async (req, res, next) => {
   try {
     await exports.start();
-    res.status(200).json({ message: "Operation started" });
+    res.status(200).json({ message: "Operation completed" });
   } catch (error) {
     next(error);
   }
