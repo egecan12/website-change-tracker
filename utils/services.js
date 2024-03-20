@@ -119,6 +119,18 @@ exports.compareContent = async (urls) => {
           }
         }
       }
+      // Create a record object and save it to the Records collection
+      const record = new Record({
+        url: fixedUrl,
+        contentHasChanged: contentHasChanged,
+        previousResponseStatus: cachedContent.responseStatus,
+        recentResponseStatus: currentContent.status,
+        previousResponseTime: cachedContent.responseTime,
+        recentResponseTime: currentContent.responseTime,
+        previousResponseStatusText: cachedContent.responseStatusText,
+        recentResponseStatusText: currentContent.responseStatusText,
+      });
+      await record.save();
 
       // Updates the Content collection with currentContent where url equals fixedUrl
       const updatedContent = await Content.findOneAndUpdate(
