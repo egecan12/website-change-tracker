@@ -1,13 +1,9 @@
-const axios = require("axios");
 const TargetLink = require("../models/targetLinkModel");
-const { URL } = require("url");
-const {
-  removeProtocolAndWWW,
-  addProtocolAndWWW,
-  validURL,
-} = require("../utils/urlModifier");
+const { removeProtocolAndWWW, validURL } = require("../utils/urlModifier");
 
 //FUNCTIONS
+
+//Saves website links to DB
 
 exports.saveTargetLink = async (req, res, next) => {
   try {
@@ -18,25 +14,23 @@ exports.saveTargetLink = async (req, res, next) => {
       return res.status(400).send("Invalid input - urls should be an array");
     }
 
+    let savedCount = 0;
     for (let url of urls) {
       // Check if url is a valid URL
       if (!validURL(url)) {
+        console.warn("Invalid URL:", url);
         continue;
       }
 
       // Fixes the urls before they are sent out to DB
       const fixedInputUrl = removeProtocolAndWWW(url);
-      console.log("fixedInputUrl:" + fixedInputUrl);
-
-      const modifiedUrl = addProtocolAndWWW(url);
-      const urlObj = new URL(modifiedUrl);
 
       // Check if a record with the same url already exists
       const existingTargetLink = await TargetLink.findOne({
         url: fixedInputUrl,
       });
       if (existingTargetLink) {
-        //if the link already added, skip to the next one
+        console.warn("URL already exists:", url);
         continue;
       }
 
@@ -46,14 +40,20 @@ exports.saveTargetLink = async (req, res, next) => {
       });
 
       await newTargetLink.save();
+      savedCount++;
     }
 
-    res.status(200).send("Target links saved successfully");
+    res.status(200).send(`${savedCount} target links saved successfully`);
   } catch (error) {
     console.error("Error saving target links to database:", error);
+    res
+      .status(500)
+      .send(`Error saving target links to database: ${error.message}`);
     next(error);
   }
 };
+
+//Deletes website links from DB
 
 exports.deleteTargetLink = async (req, res) => {
   try {
@@ -64,10 +64,11 @@ exports.deleteTargetLink = async (req, res) => {
       return res.status(400).send("Invalid input - urls should be an array");
     }
 
+    let deletedCount = 0;
     for (let url of urls) {
       // Check if url is a valid URL
       if (!validURL(url)) {
-        console.log("invalid url");
+        console.warn("Invalid URL:", url);
         continue;
       }
 
@@ -79,14 +80,18 @@ exports.deleteTargetLink = async (req, res) => {
         url: fixedInputUrl,
       });
       if (!targetLink) {
-        console.log("No target link found with this url");
+        console.warn("No target link found with this url:", url);
         continue;
       }
+
+      deletedCount++;
     }
 
-    res.status(200).send("Target links deleted successfully");
+    res.status(200).send(`${deletedCount} target links deleted successfully`);
   } catch (error) {
     console.error("Error deleting target links from database:", error);
-    res.status(500).send("Error deleting target links from database");
+    res
+      .status(500)
+      .send(`Error deleting target links from database: ${error.message}`);
   }
 };

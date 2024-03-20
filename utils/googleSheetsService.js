@@ -1,8 +1,32 @@
 const { google } = require("googleapis");
 require("dotenv").config();
 
+exports.startWriting = async function (values) {
+  const auth = new google.auth.GoogleAuth({
+    keyFile: process.env.SPREADSHEET_KEYFILE_NAME,
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+  });
+  const sheets = google.sheets({ version: "v4", auth });
+  const spreadsheetId = process.env.SPREADSHEET_ID;
+  const range = process.env.SPREADSHEET_RANGE;
+  const valueInputOption = "USER_ENTERED";
+  const resource = { values };
+
+  try {
+    const res = await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range,
+      valueInputOption,
+      resource,
+    });
+    return res;
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
+};
+
 exports.writeToGoogleSheets = async function (historyRecords) {
-  // Define the titles for your cells
   const titles = [
     "URL",
     "Content Changed",
@@ -15,7 +39,6 @@ exports.writeToGoogleSheets = async function (historyRecords) {
     "Created At",
   ];
 
-  // Transform your records into an array of arrays and prepend the titles
   const values = [
     titles,
     ...historyRecords.flatMap((historyRecord) =>
@@ -33,35 +56,5 @@ exports.writeToGoogleSheets = async function (historyRecords) {
     ),
   ];
 
-  exports.writeToSheet = async function (values) {
-    // Authenticate with your credentials
-
-    const auth = new google.auth.GoogleAuth({
-      keyFile: process.env.SPREADSHEET_KEYFILE_NAME,
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-    });
-    const sheets = google.sheets({ version: "v4", auth }); // Creates a Sheets API client instance.
-    const spreadsheetId = process.env.SPREADSHEET_ID; // The ID of the spreadsheet.
-    const range = process.env.SPREADSHEET_RANGE; // The range in the sheet where data will be written.
-    const valueInputOption = "USER_ENTERED"; // How input data should be interpreted.
-
-    const resource = { values }; // The data to be written.
-
-    try {
-      const res = await sheets.spreadsheets.values.update({
-        spreadsheetId,
-        range,
-        valueInputOption,
-        resource,
-      });
-      return res; // Returns the response from the Sheets API.
-    } catch (error) {
-      console.error("error", error); // Logs errors.
-    }
-  };
-
-  (async () => {
-    const writer = await exports.writeToSheet(values);
-    console.log(writer); // Logs the write operation's response.
-  })();
+  return exports.startWriting(values);
 };

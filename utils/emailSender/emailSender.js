@@ -1,3 +1,5 @@
+// Sends an email via SendGrid with given parameters and logs the action.
+
 const sgMail = require("@sendgrid/mail");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);

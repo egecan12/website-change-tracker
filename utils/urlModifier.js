@@ -1,3 +1,5 @@
+// This function removes the protocol (http:// or https://) and 'www.' from the start of a URL, and the trailing slash if present.
+
 exports.removeProtocolAndWWW = (url) => {
   let fixedUrl = url.toLowerCase();
   // Check if the URL starts with "www" or "https"
@@ -14,6 +16,8 @@ exports.removeProtocolAndWWW = (url) => {
   return fixedUrl;
 };
 
+// This function adds the protocol (https://) and 'www.' to the start of a URL if they are not present, and removes the trailing slash if present.
+
 exports.addProtocolAndWWW = (url) => {
   url = url.toLowerCase();
   if (!url.startsWith("http://") && !url.startsWith("https://")) {
@@ -27,6 +31,8 @@ exports.addProtocolAndWWW = (url) => {
   }
   return url;
 };
+
+// This function checks if a string is a valid URL using a regular expression.
 
 exports.validURL = function (str) {
   var pattern = new RegExp(

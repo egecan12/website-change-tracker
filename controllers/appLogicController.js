@@ -1,6 +1,8 @@
 const services = require("../utils/services");
 const TargetLink = require("../models/targetLinkModel");
 
+// This function fetches URLs, compares content, writes records to a spreadsheet, and logs results or errors.
+
 exports.start = async () => {
   try {
     // Gets websites' url links from TargetLinks collection
@@ -12,12 +14,8 @@ exports.start = async () => {
       return;
     }
 
-    //1)Checks if the url has alrady cached -> if not it will save the content to Contents collection
-    //2)Gets current content from live and Gets cached content from DB
-    //3)Compares currentcontent vs cached content
-    //4)Sends notifications if contentHasChanged == true
-    //5)Updates the cached content with the most recent content.
-    //6)Saves comparison record to Records collection
+    //Compares current content vs cached content
+
     const comparedLinks = await services.compareContent(
       targetLinks,
       (error) => {
@@ -28,6 +26,7 @@ exports.start = async () => {
       }
     );
     //Writes comparison records  to a Google Spreadsheet
+
     const resultedLinks = await services.showRecords(comparedLinks);
 
     const jsonResult = {
@@ -35,13 +34,11 @@ exports.start = async () => {
     };
 
     console.log(jsonResult);
-
-    // Continue with your logic using targetLinks...
   } catch (error) {
     console.error(error);
   }
 };
-
+// We need that function to be able to start our app with the end-point
 exports.runOperation = async (req, res, next) => {
   try {
     await exports.start();

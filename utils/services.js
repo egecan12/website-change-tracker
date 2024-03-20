@@ -1,18 +1,18 @@
 const axios = require("axios");
 const Content = require("../models/contentModel");
 const Record = require("../models/recordModel");
-const { URL } = require("url");
 const {
   removeProtocolAndWWW,
   addProtocolAndWWW,
 } = require("../utils/urlModifier");
-const { sendEmail } = require("../utils/emailSender/emailSender");
 const {
   sendContentChangedEmail,
 } = require("../utils/emailSender/emailTemplates");
 const { sendSms } = require("../utils/smsSender/smsSender");
 const { writeToGoogleSheets } = require("../utils/googleSheetsService");
 const { simplifyHTML } = require("../utils/htmlSimplifier");
+
+// This function fetches content from a URL, calculates the response time, and returns an object with the response details.
 
 exports.fetchCurrentContent = async (inputUrl) => {
   try {
@@ -50,93 +50,117 @@ exports.fetchCurrentContent = async (inputUrl) => {
     };
   }
 };
+// This function compares the current content of each URL in the input array with its cached content.
+// If the content has changed, it sends an email notification and updates the record in the database.
+// If the content is not cached, it saves the current content as cached content.
+// It returns an array of processed URLs.
 
 exports.compareContent = async (urls) => {
-  // Create an empty array to store the URLs
-  let processedUrls = [];
+  try {
+    // Create an empty array to store the URLs
+    let processedUrls = [];
 
-  for (let i = 0; i < urls.length; i++) {
-    let url = urls[i].url;
-    processedUrls.push(url);
+    for (let i = 0; i < urls.length; i++) {
+      let url = urls[i].url;
+      processedUrls.push(url);
 
-    // Remove the protocol and 'www' from the URL
-    let fixedUrl = removeProtocolAndWWW(url);
+      // Remove the protocol and 'www' from the URL
+      let fixedUrl = removeProtocolAndWWW(url);
 
-    // Add the protocol and 'www' back to the URL
-    let modifiedUrl = addProtocolAndWWW(fixedUrl);
+      // Add the protocol and 'www' back to the URL
+      let modifiedUrl = addProtocolAndWWW(fixedUrl);
 
-    // Fetch the current content
-    let currentContent = await exports.fetchCurrentContent(modifiedUrl);
+      // Fetch the current content
+      let currentContent = await exports.fetchCurrentContent(modifiedUrl);
 
-    // Check if content is cached
-    const cachedContent = await Content.findOne({ url: fixedUrl });
+      // Check if content is cached
+      const cachedContent = await Content.findOne({ url: fixedUrl });
 
-    if (!cachedContent) {
-      // If content is not cached, save the current content as cached content
-      const newContent = new Content({
-        url: fixedUrl,
-        data: currentContent.data,
-        responseTime: currentContent.responseTime,
-        responseStatus: currentContent.status,
-        responseStatusText: currentContent.statusText,
-      });
-      await newContent.save();
-      continue;
-    }
-
-    const simplifiedCurrentContent = simplifyHTML(currentContent.data ?? "");
-    const simplifiedCachedContent = simplifyHTML(cachedContent.data ?? "");
-
-    // Compare the current and cached content
-    const contentHasChanged =
-      simplifiedCurrentContent !== simplifiedCachedContent;
-
-    // Send email and SMS notifications if the content has changed and if the record exists
-    const urlCompareRecord = await Record.find({ url: fixedUrl });
-    if (urlCompareRecord.length > 0) {
-      if (contentHasChanged) {
-        await sendContentChangedEmail(
-          process.env.EMAIL_RECEIVER_ADDRESS,
-          fixedUrl
-        );
-        // await sendContentChangedSms(
-        //   "SMS_RECEIVER_NUMBER",
-        //   "The content you are tracking has changed."
-        // );
-      }
-    }
-
-    // Create a record object and save it to the Records collection
-    const record = new Record({
-      url: fixedUrl,
-      contentHasChanged: contentHasChanged,
-      previousResponseStatus: cachedContent.responseStatus,
-      recentResponseStatus: currentContent.status,
-      previousResponseTime: cachedContent.responseTime,
-      recentResponseTime: currentContent.responseTime,
-      previousResponseStatusText: cachedContent.responseStatusText,
-      recentResponseStatusText: currentContent.responseStatusText,
-    });
-    await record.save();
-    // Updates the Content collection with currentContent where url equals fixedUrl
-    const updatedContent = await Content.findOneAndUpdate(
-      { url: fixedUrl },
-      {
-        $set: {
+      if (!cachedContent) {
+        // If content is not cached, save the current content as cached content
+        const newContent = new Content({
+          url: fixedUrl,
           data: currentContent.data,
           responseTime: currentContent.responseTime,
           responseStatus: currentContent.status,
-          responseStatusText: currentContent.responseStatusText,
-        },
-      },
-      { new: true, upsert: true }
-    );
-    console.log(updatedContent);
-  }
+          responseStatusText: currentContent.statusText,
+        });
+        await newContent.save();
+        continue;
+      }
 
-  // Returns the input array
-  return processedUrls;
+      const simplifiedCurrentContent = simplifyHTML(currentContent.data ?? "");
+      const simplifiedCachedContent = simplifyHTML(cachedContent.data ?? "");
+
+      // Compare the current and cached content
+      const contentHasChanged =
+        simplifiedCurrentContent !== simplifiedCachedContent;
+
+      // Send email and SMS notifications if the content has changed and if the record exists
+      const comparisonRecord = await Record.find({ url: fixedUrl });
+
+      //if the URL has 1 record to compare with current record which comes from live website
+      if (comparisonRecord.length > 0) {
+        //if there is any change send notifications
+        if (contentHasChanged) {
+          const emailSent = await sendContentChangedEmail(
+            process.env.EMAIL_RECEIVER_ADDRESS,
+            fixedUrl
+          );
+          //You should comment-in that part If you want to send sms notification
+
+          // await sendContentChangedSms(
+          //   "SMS_RECEIVER_NUMBER",
+          //   "The content you are tracking has changed."
+          // );
+          if (emailSent) {
+            console.log(
+              `Email sent to ${process.env.EMAIL_RECEIVER_ADDRESS} for URL: ${fixedUrl}`
+            );
+          } else {
+            console.log(`Failed to send email for URL: ${fixedUrl}`);
+          }
+        }
+      }
+
+      // Create a record object and save it to the Records collection
+      const record = new Record({
+        url: fixedUrl,
+        contentHasChanged: contentHasChanged,
+        previousResponseStatus: cachedContent.responseStatus,
+        recentResponseStatus: currentContent.status,
+        previousResponseTime: cachedContent.responseTime,
+        recentResponseTime: currentContent.responseTime,
+        previousResponseStatusText: cachedContent.responseStatusText,
+        recentResponseStatusText: currentContent.responseStatusText,
+      });
+      await record.save();
+      // Updates the Content collection with currentContent where url equals fixedUrl
+      const updatedContent = await Content.findOneAndUpdate(
+        { url: fixedUrl },
+        {
+          $set: {
+            data: currentContent.data,
+            responseTime: currentContent.responseTime,
+            responseStatus: currentContent.status,
+            responseStatusText: currentContent.responseStatusText,
+          },
+        },
+        { new: true, upsert: true }
+      );
+      console.log(updatedContent);
+    }
+
+    // Returns the input array
+    return processedUrls;
+  } catch (error) {
+    console.error(`Error in compareContent: ${error}`);
+    throw error;
+  }
 };
+
+// This function fetches and returns the records for each URL in the input array.
+// If the input is not an array or if there are no records for a URL, it skips to the next URL.
 exports.findRecords = async (urls) => {
   try {
     // Check if urls is an array
@@ -173,14 +197,14 @@ exports.findRecords = async (urls) => {
     throw error;
   }
 };
+//This function will show all records in a Google Spreadsheet
 exports.showRecords = async (urls) => {
-  // Convert array of urls to array of objects with url property
-
-  const records = await exports.findRecords(urls);
-
-  // Loop over each record and call writeToGoogleSheets
-
-  await writeToGoogleSheets(records);
-
-  return urls;
+  try {
+    const records = await exports.findRecords(urls);
+    await writeToGoogleSheets(records);
+    return urls;
+  } catch (error) {
+    console.error(`Error in showRecords: ${error}`);
+    throw error; // re-throw the error so it can be handled by the caller
+  }
 };

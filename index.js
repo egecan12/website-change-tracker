@@ -54,6 +54,7 @@ if (process.env.CRON_TIMER) {
 //SERVER
 const server = http.createServer(app);
 
+// Sets the server's port and host using environment variables, with defaults of 8000 and '127.0.0.1' respectively.
 const PORT = process.env.PORT || 8000;
 const HOST = process.env.HOST || "127.0.0.1";
 

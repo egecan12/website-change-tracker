@@ -1,4 +1,5 @@
 const cheerio = require("cheerio");
+// This function simplifies HTML content by parsing it, removing script and style tags, removing all attribute values, and returning the body content.
 
 exports.simplifyHTML = (content) => {
   // Parse the HTML content
@@ -8,13 +9,13 @@ exports.simplifyHTML = (content) => {
   $("script, style").remove();
 
   // Remove all text nodes
-  $("*")
-    .contents()
-    .each(function () {
-      if (this.type === "text") {
-        $(this).remove();
-      }
-    });
+  // $("*")
+  //   .contents()
+  //   .each(function () {
+  //     if (this.type === "text") {
+  //       $(this).remove();
+  //     }
+  //   });
 
   // Remove all attribute values
   $("*").each(function () {
