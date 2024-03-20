@@ -98,7 +98,7 @@ Example
 curl --location 'http://localhost:8000/'
 ```
 
-## Try it on my test server
+## Test it on My Live Server
 
 For testing purposes, the cron job has been disabled and no triggers have been set. This allows you to manually trigger it via Postman.
 
