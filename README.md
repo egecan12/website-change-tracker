@@ -77,11 +77,15 @@ also you can delete the urls that yoou do not want to track anymore, sending a d
 }
 ```
 
+## Important Notes
+
 The "Node-Cron" module has been installed to configure the app to call the `start` function when the project starts running, initiating its process. The start time for the application logic can be scheduled by setting the `CRON_TIMER` environment variable.
+
+There are two options to run the app automatically. First, you can set the `CRON_TIMER` environment variable. If this variable is not set, the second option is to trigger the `${host}/api/run-operation` endpoint, sending a GET Request, using a service like Amazon CloudWatch Events.
 
 Please do not forget including Google Spreadsheet credential keyfile as a json file!
 
-## Important Notes
+## Additional Notes
 
 1)When comparing website contents, I've observed that many sites use dynamic variables and attribute names, often based on the current date, to guard against XSS attacks. This causes the contentHasChanged variable to consistently return true. To mitigate this, I've incorporated the Cheerio npm package, which excludes style and script tags, as well as attribute names. However, this approach makes the comparison less stringent. Therefore, any design changes on the website may go undetected as the code excludes style tags. Despite my efforts, some sites still indicate a change in content. This is due to dynamic elements, such as a clock or other variables, that constantly change.
 
