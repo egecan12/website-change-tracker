@@ -52,6 +52,9 @@ job1.start();
 //SERVER
 const server = http.createServer(app);
 
-server.listen(8000, "127.0.0.1", () => {
-  console.log("Server is listening on port 8000");
+const PORT = process.env.PORT || 8000;
+const HOST = process.env.HOST || "127.0.0.1";
+
+server.listen(PORT, HOST, () => {
+  console.log(`Server is listening on ${HOST}:${PORT}`);
 });
