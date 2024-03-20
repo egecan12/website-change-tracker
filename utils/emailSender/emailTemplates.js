@@ -6,7 +6,7 @@ exports.sendContentChangedEmail = async (to, url) => {
   // Generate the Google Sheets URL
   const googleSheetsUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit#gid=0`;
   // Generate the Email
-  const subject = `Content Changed in ${url}`;
+  const subject = "Content has changed on a website you are monitoring";
   const text = `Hi there, the content you are tracking on ${url}, has changed !`;
   const html = `<p>Hello! Just a friendly reminder that there have been some updates on ${url}. You can check out the changes at ${googleSheetsUrl}.</p>`;
 

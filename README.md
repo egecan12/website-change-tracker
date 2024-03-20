@@ -4,7 +4,7 @@ This is an API that monitors specific changes on a webpage. It's built with Node
 
 ## Project Diagram
 
-![diagram](https://github.com/egecan12/website-change-tracker/assets/45043515/70c66fc4-b53d-4d72-998e-7fd01eb11515)
+![Alt text](./img/diagram.svg)
 
 ## Features
 
@@ -16,10 +16,10 @@ This is an API that monitors specific changes on a webpage. It's built with Node
 
 - Node.js
 - npm
-- MongoDB
-- SendGrid account
-- Twilio account
-- Google Sheets API credentials
+- MongoDB Atlas Conenction String
+- SendGrid account API credentials
+- Twilio account API credentials
+- Google Sheets API keyfile
 
 ## Installation
 
@@ -43,29 +43,41 @@ or
 You can also check example.env file
 
 ```sh
-DB_URI=your_mongodb_uri
-SENDGRID_API_KEY=your_sendgrid_api_key
-SENDGRID_SENDER=your_sendgrid_sender_email
-TWILIO_ACCOUNT_SID=your_twilio_account_sid
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-TWILIO_PHONE_NUMBER=your_twilio_phone_number
-SPREADSHEETID=your_id
-SPREADSHEET_KEYFILE_NAME=your_keyfile_name
-SPREADSHEET_RANGE=Sheet1!A1
-EMAIL_RECEIVER_ADDRESS=receiver_email_address
-SMS_RECEIVER_NUMBER=receiver_phone_number
+DB_URI=add_your_mongodb_uri
+SENDGRID_API_KEY=add_your_api_key
+SENDGRID_SENDER=add_your_sender_email
+TWILIO_ACCOUNT_SID=add_your_SID
+TWILIO_AUTH_TOKEN=add_your_token
+TWILIO_PHONE_NUMBER=add_your_sender_phone_number
+SPREADSHEET_KEYFILE_NAME=add_your_keyfile_filename_here
+SPREADSHEET_ID=add_your_id
+SPREADSHEET_RANGE=add_your_range_as_Sheet1!A1
+EMAIL_RECEIVER_ADDRESS=add_your_email_address
+SMS_RECEIVER_NUMBER=add_your_number_as_+15555555555
+CRON_TIMER=add_cron_schedule_as_*/5 * * * *
 ```
 
-To be able to run the app, you must set url links, sending a post request to
+To be able to make the app work, you must set url links, sending a post request to
 
 ```sh
 "http://localhost:8000/targetlink/add"
-example req.body = {
-"urls": ["youexampleweblink.com/","www.kahyaogluegecan.tech", "https://translate.google.com/", "https://www.makeuseof.com/using-galaxy-watch-with-iphone/" ]
+{
+    "urls": ["kahyaogluegecan.tech/sample-page", "https://cheerio.js.org/docs/intro", "https://www.imdb.com/title/tt0112573/", "https://www.apple.com/"]
 }
 ```
 
-Please do not forget including googlesheets credentials keyfile as json file!
+also you can delete the urls that yoou do not want to track anymore, sending a delete request.
+
+```sh
+"http://localhost:8000/targetlink/delete"
+{
+    "urls": ["kahyaogluegecan.tech/sample-page", "https://cheerio.js.org/docs/intro", "https://www.imdb.com/title/tt0112573/", "https://www.apple.com/"]
+}
+```
+
+You can schedule the start time for the application logic by setting the `CRON_TIMER` environment variable.
+
+Please do not forget including Google Spreadsheet credential keyfile as a json file!
 
 ## Important Notes
 
