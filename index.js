@@ -21,7 +21,6 @@ const requiredEnvVars = [
   "SPREADSHEET_RANGE",
   "EMAIL_RECEIVER_ADDRESS",
   "SMS_RECEIVER_NUMBER",
-  "CRON_TIMER",
 ];
 
 requiredEnvVars.forEach((varName) => {
@@ -47,7 +46,10 @@ app.get("/", (req, res) => {
 });
 
 //CRONJOB
-job1.start();
+//If CRON_TIMER env variable is not set, cron will not run
+if (process.env.CRON_TIMER) {
+  job1.start();
+}
 
 //SERVER
 const server = http.createServer(app);
