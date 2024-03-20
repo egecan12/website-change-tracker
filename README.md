@@ -59,25 +59,44 @@ HOST=for_deployment_set_0.0.0.0
 SECRET_KEY=crete_your_own_key_as_random_numbers
 ```
 
-To be able to make the app work, you must set url links, sending a post request to
+## Running the App
+
+To make the app work, you need to set URL links by sending a POST request.
+
+To add URLs, make a POST request to `http://your-host-url/targetlink/add`. The request body should contain a JSON object with an `urls` array:
+
+For authentication purposes, the headers for this request must contain a key named "x-secret-key". The value for this key should be set in your environment variables.
+
+Example
 
 ```sh
-"http://localhost:8000/targetlink/add"
-{
-    "urls": ["kahyaogluegecan.tech/sample-page", "https://cheerio.js.org/docs/intro", "https://www.imdb.com/title/tt0112573/", "https://www.apple.com/"]
-}
+curl --location 'http://localhost:8000/targetlink/add' \
+--header 'x-secret-key: ${your-secret-key}}' \
+--header 'Content-Type: application/json' \
+--data '{
+    "urls": ["https://nodejs.org/docs/latest/api/", "https://www.npmjs.com/support", "https://www.w3schools.com/mongodb/" ]
+}'
 ```
 
-also you can delete the urls that yoou do not want to track anymore, sending a delete request.
+You can also remove URLs that you no longer wish to track by sending a DELETE request.
+
+Example
 
 ```sh
-"http://localhost:8000/targetlink/delete"
-{
-    "urls": ["kahyaogluegecan.tech/sample-page", "https://cheerio.js.org/docs/intro", "https://www.imdb.com/title/tt0112573/", "https://www.apple.com/"]
-}
+curl --location --request DELETE 'http://localhost:8000/targetlink/delete' \
+--header 'Content-Type: application/json' \
+--data '{
+    "urls": ["https://nodejs.org/docs/latest/api/", "https://www.npmjs.com/support", "https://www.w3schools.com/mongodb/" ]
+}'
 ```
 
-## Deploy it Server
+To start Operation
+
+Example
+
+```sh
+curl --location 'http://localhost:8000/'
+```
 
 ## Try it on my test server
 
@@ -88,6 +107,8 @@ https://website-change-tracker.onrender.com
 ```
 
 You can import my Postman collection to access the endpoints.It is located in the project root.
+
+Please contact me for SECRET_KEY
 
 Please note that you will not receive notifications as my email and phone number are set as the receiver in the environment variables. However, you can check the results in my Google Spreadsheet:
 
