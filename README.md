@@ -77,7 +77,7 @@ also you can delete the urls that yoou do not want to track anymore, sending a d
 }
 ```
 
-You can schedule the start time for the application logic by setting the `CRON_TIMER` environment variable.
+The "Node-Cron" module has been installed to configure the app to call the `start` function when the project starts running, initiating its process. The start time for the application logic can be scheduled by setting the `CRON_TIMER` environment variable.
 
 Please do not forget including Google Spreadsheet credential keyfile as a json file!
 
