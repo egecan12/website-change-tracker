@@ -122,7 +122,7 @@ https://docs.google.com/spreadsheets/d/1ZQ1BrY_xqKSF79Mq7tNHmYuHMecmUVYBaDYau_sR
 
 1)The "Node-Cron" module has been installed to configure the app to call the `start` function when the project starts running, initiating its process. The start time for the application logic can be scheduled by setting the `CRON_TIMER` environment variable.
 
-There are two options to run the app automatically. First, you can set the `CRON_TIMER` environment variable. If this variable is not set, the second option is to trigger the `${host}/api/run-operation` endpoint, sending a GET Request, using a service like Amazon CloudWatch Events.
+There are two options to automate the running of the app. First, you can set the `CRON_TIMER` environment variable. If this variable is not set, the second option is to trigger the `${host}/api/run-operation` endpoint by sending a GET request. This can be done using a service like Amazon CloudWatch Events for Lambda Function.
 
 2)Since TWILIO API costs me credits(real money $🙈), I usually comment out the SMS_Sending function in Services.js line 103-106. Please make sure it is commented in.
 
