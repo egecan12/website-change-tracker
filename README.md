@@ -95,7 +95,7 @@ To start Operation
 Example
 
 ```sh
-curl --location 'http://localhost:8000/'
+curl --location 'http://localhost:8000/api/run-operation'
 ```
 
 ## Test it on My Live Server
