@@ -4,7 +4,7 @@ This is an API that monitors specific changes on a webpage. It's built with Node
 
 ## Project Diagram
 
-![Alt text](./img/diagram.svg)
+![diagram](https://github.com/egecan12/website-change-tracker/assets/45043515/6c61d894-8149-4505-a07c-bf105a09afb5)
 
 ## Features
 
